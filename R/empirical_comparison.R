@@ -402,16 +402,17 @@
   # Create ggplot
   plot <- ggplot(F_ratio_df) +
     theme_bw() + 
-    geom_bar(aes(x=type, y=MEAN), color= "#d9d9d9",  stat = "identity", position = "dodge") +
+    geom_bar(aes(x=type, y=MEAN),  stat = "identity", position = "dodge", fill = "#d9d9d9") +
     geom_errorbar(aes(x= type, ymin = `2.5%`, ymax = `97.5%`),
                   width = 0.4,
                   colour = "orange",
                   alpha = 0.9,
                   size = 1.3) + 
+    geom_hline(yintercept = 1, linetype = "dashed", color = "black") + 
+    geom_text(aes(x = type, y = MEAN, label = sprintf("%.2f", MEAN)), vjust = -0.5) +
     ggtitle(graph_title) + 
     xlab(x_axis_title) + 
-    ylab(y_axis_title) + 
-    theme(axis.text.x = element_text(size = 14), axis.title.y = element_text(size = 14)) 
+    ylab(y_axis_title) 
   # Add y-axis limits if specified
   if (!is.null(y_min_value) && !is.null(y_max_value)) {
     plot <- plot + ylim(y_min_value, y_max_value)
