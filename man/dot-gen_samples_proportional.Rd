@@ -8,7 +8,7 @@
   df,
   factor_column = "vasdecile",
   sample_size = 1000,
-  number_of_samples = 1
+  number_of_samples = 1000
 )
 }
 \arguments{

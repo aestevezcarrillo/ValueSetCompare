@@ -16,7 +16,7 @@
 
 \item{data_margin}{An integer that indicates the margin on which to apply the function. Default is 2.}
 
-\item{quantile_levels}{A named numeric vector of probabilities for which quantiles are required. Default levels are min, 2.5%, 25%, median, 75%, 97.5%, and max.}
+\item{quantile_levels}{A named numeric vector of probabilities for which quantiles are required.}
 }
 \value{
 A data frame with columns for each calculated statistic, including mean, standard deviation, and user-specified quantiles.

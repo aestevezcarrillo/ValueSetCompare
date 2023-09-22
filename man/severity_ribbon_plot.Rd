@@ -44,7 +44,7 @@ severity_ribbon_plot(
 
 \item{number_of_samples}{An integer specifying the number of bootstrap samples. Default is 1000.}
 
-\item{probability_levels}{A named vector specifying the probability levels for quantiles. Default is c("min" = 0, "2.5%" = 0.025, "25%" = 0.25, "median" = 0.5, "75%" = 0.75, "97.5%" = 0.975, "max" = 1).}
+\item{probability_levels}{A named vector specifying the probability levels for quantiles.}
 
 \item{graph_title}{A string specifying the title of the graph. Default is an empty string.}
 
@@ -58,9 +58,9 @@ severity_ribbon_plot(
 
 \item{y_axis_limits}{A numeric vector specifying the limits for the y-axis. Default is c(0.15, 0.95).}
 
-\item{y_min_value}{A string specifying the minimum value for the y-axis. Default is "2.5%".}
+\item{y_min_value}{A string specifying the minimum value for the y-axis.}
 
-\item{y_max_value}{A string specifying the maximum value for the y-axis. Default is "97.5%".}
+\item{y_max_value}{A string specifying the maximum value for the y-axis.}
 
 \item{color_palette}{A character vector specifying the color palette for the plot. Default is c("#8dd3c7", "#bebada", "#80b1d3", "#fb8072", "#ffff67", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd").}
 }

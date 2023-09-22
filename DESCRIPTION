@@ -1,11 +1,11 @@
 Package: valueSetCompare
 Type: Package
-Title: A suite of functions for manipulating and analysing EQ-5D data
-Version: 0.3.3
-Author: Kim Rand, Iryna Schlackow, Anabel Estévez-Carrillo
+Title: Comparing HRQoL Instrument Value Sets
+Version: 0.0.3
+Author: Kim Rand, Anabel Estévez-Carrillo
 Maintainer: MathsInHealth <krand@mathsinhealth.com>
-Description: The package contains a suite of functions to manipulate EQ-5D data, including crosswalk (i.e. mapping the EQ-5D-5L to EQ-5D-3L value sets), reverse crosswalk (i.e. mapping the EQ-5D-5L to EQ-5D-3L value sets), adding and/or removing user-defined value sets. 
-    The package also provides tools to produce tables and figures describing and analysing EQ-5D data.
+Description: The package contains a set of functions designed to compare health-related quality of life (HRQoL) instrument Value Sets. 
+  These functions enable the comparison of both theoretical and empirical characteristics of the value sets.
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
@@ -15,9 +15,9 @@ Depends:
 Imports: 
     dplyr,
     ggplot2,
-    moments,
-    RColorBrewer,
-    rlang,
-    scales,
+    eq5dsuite,
     stringr,
     tidyr
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

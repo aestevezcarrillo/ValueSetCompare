@@ -144,7 +144,7 @@
 #' @description This function calculates the mean, standard deviation, and specified quantiles for each column in a provided data array.
 #' @param data_array A numeric array where calculations will be performed on each column. The array can be 2D or 3D.
 #' @param data_margin An integer that indicates the margin on which to apply the function. Default is 2.
-#' @param quantile_levels A named numeric vector of probabilities for which quantiles are required. Default levels are min, 2.5%, 25%, median, 75%, 97.5%, and max.
+#' @param quantile_levels A named numeric vector of probabilities for which quantiles are required.
 #' @return A data frame with columns for each calculated statistic, including mean, standard deviation, and user-specified quantiles.
 
 .calculate_quantiles <- function(data_array, data_margin = 2, quantile_levels = c("min" = 0, "2.5%" = 0.025, "25%" = 0.25, "median" = 0.5, "75%" = 0.75, "97.5%" = 0.975, "max" = 1)) {
@@ -189,8 +189,8 @@
 #' @param legend_name A string specifying the name of the legend. Default is "Type".
 #' @param legend_labels A named vector specifying custom labels for the legend. Default is NULL.
 #' @param y_axis_limits A numeric vector specifying the limits for the y-axis. Default is c(0.15, 0.95).
-#' @param y_min_value A string specifying the column name for the lower bound of the ribbon. Default is "2.5%".
-#' @param y_max_value A string specifying the column name for the upper bound of the ribbon. Default is "97.5%".
+#' @param y_min_value A string specifying the column name for the lower bound of the ribbon. Default is "2.5".
+#' @param y_max_value A string specifying the column name for the upper bound of the ribbon. Default is "97.5".
 #' @param color_palette A character vector specifying the color palette to use for the plot. Default is a set of 10 colors.
 #' @return A ggplot2 object representing the plot.
 
@@ -238,7 +238,7 @@
 #' @return A matrix containing bootstrap samples with rows corresponding to individual samples and columns corresponding to observations in each sample.
 #'    The matrix has an attribute "gr" that contains the calculated size for each group to ensure proportional representation.
 
-.gen_samples_proportional<- function(df, factor_column = "vasdecile", sample_size = 1000, number_of_samples = 1) {
+.gen_samples_proportional<- function(df, factor_column = "vasdecile", sample_size = 1000, number_of_samples = 1000) {
   # Convert column to factor
   grf <- as.factor(df[, factor_column])
   # Calculate group frequencies
@@ -430,15 +430,15 @@
 #' @param weight_function A function to generate weights. Default is .makeWeightsMixed.
 #' @param sample_size An integer specifying the sample size for bootstrapping. Default is 1000.
 #' @param number_of_samples An integer specifying the number of bootstrap samples. Default is 1000.
-#' @param probability_levels A named vector specifying the probability levels for quantiles. Default is c("min" = 0, "2.5%" = 0.025, "25%" = 0.25, "median" = 0.5, "75%" = 0.75, "97.5%" = 0.975, "max" = 1).
+#' @param probability_levels A named vector specifying the probability levels for quantiles. 
 #' @param graph_title A string specifying the title of the graph. Default is an empty string.
 #' @param x_axis_title A string specifying the title for the x-axis. Default is an empty string.
 #' @param y_axis_title A string specifying the title for the y-axis. Default is an empty string.
 #' @param legend_name A string specifying the name for the legend. Default is "Type".
 #' @param legend_labels A character vector specifying the labels for the legend. Default is NULL.
 #' @param y_axis_limits A numeric vector specifying the limits for the y-axis. Default is c(0.15, 0.95).
-#' @param y_min_value A string specifying the minimum value for the y-axis. Default is "2.5%".
-#' @param y_max_value A string specifying the maximum value for the y-axis. Default is "97.5%".
+#' @param y_min_value A string specifying the minimum value for the y-axis. 
+#' @param y_max_value A string specifying the maximum value for the y-axis. 
 #' @param color_palette A character vector specifying the color palette for the plot. Default is c("#8dd3c7", "#bebada", "#80b1d3", "#fb8072", "#ffff67", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd").
 #' @return A list containing two elements: 'df' which is a data frame of weighted statistics, and 'plot' which is the ggplot object representing the ribbon plot.
 #' @examples

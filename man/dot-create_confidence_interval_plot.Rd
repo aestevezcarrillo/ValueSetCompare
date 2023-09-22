@@ -33,9 +33,9 @@
 
 \item{y_axis_limits}{A numeric vector specifying the limits for the y-axis. Default is c(0.15, 0.95).}
 
-\item{y_min_value}{A string specifying the column name for the lower bound of the ribbon. Default is "2.5%".}
+\item{y_min_value}{A string specifying the column name for the lower bound of the ribbon. Default is "2.5".}
 
-\item{y_max_value}{A string specifying the column name for the upper bound of the ribbon. Default is "97.5%".}
+\item{y_max_value}{A string specifying the column name for the upper bound of the ribbon. Default is "97.5".}
 
 \item{color_palette}{A character vector specifying the color palette to use for the plot. Default is a set of 10 colors.}
 }
