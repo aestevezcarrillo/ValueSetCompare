@@ -32,6 +32,7 @@
 \value{
 An array containing the indices of the sampled rows in the original data frame. 
  The dimensions of the array are determined by the number of weight values and the number of samples.
+ @keyword internal
 }
 \description{
 This function generates stratified samples from a specified dataframe.

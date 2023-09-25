@@ -4,7 +4,8 @@
 #' @param pointval A numeric point value within the range of x.
 #' @param rng A numeric vector indicating the range of x.
 #' @return A numeric vector of calculated weights.
- 
+#' @keyword internal
+
 .makeWeightsTriangular <- function(x, pointval, rng) {
   # Calculate ranges
   toprange <- pointval - max(rng)
@@ -29,6 +30,7 @@
 #' @param pointval A numeric point value within the range of x.
 #' @param rng A numeric vector indicating the range of x.
 #' @return A numeric vector of calculated weights.
+#' @keyword internal
 
 .makeWeightsGradient <- function(x, pointval, rng) {
   # Pre-compute common values
@@ -48,6 +50,7 @@
 #' @param pointval A numeric point value within the range of x.
 #' @param rng A numeric vector indicating the range of x.
 #' @return A numeric vector of calculated weights.
+#' @keyword internal
 
 .makeWeightsMixed <- function(x, pointval, rng) {
   # Calculate weights based on mixed approach
@@ -62,6 +65,7 @@
 #' @param rng A numeric vector indicating the range of x, default is 0 to 100.
 #' @param variant_fun A function to calculate weights. It can be makeWeightsTriangular, makeWeightsGradient, makeWeightsMixed, or a custom function name. Default is makeWeightsTriangular.
 #' @return A numeric vector of calculated and scaled weights.
+#' @keyword internal
 
 .makeWeights <- function(x, pointval = 100, rng = c(0:100), variant_fun = .makeWeightsMixed) {
   # Check if range is within the range of x
@@ -90,6 +94,7 @@
 #' @param number_of_samples An integer specifying the number of samples to generate. Defaults to 1000.
 #' @return An array containing the indices of the sampled rows in the original data frame. 
 #'  The dimensions of the array are determined by the number of weight values and the number of samples.
+#'  @keyword internal
 
 .gen_samples <- function(df, 
                          weight_column = "VAS", 
@@ -129,6 +134,7 @@
 #' @param sample_indices An array of sampled indices, each element of the array represents the index of a row in df.
 #' @return A list of arrays, with each array  containing the values of the respective column for the sampled indices. 
 #'   Each array has the same dimensions as sampledIndices. The names of the list elements are the names of column_names.
+#' @keyword internal
 
 .extract_columns <- function(df, column_names = c("VAS", "utility_3L", "utility_5L", "utility_xw"), sample_indices) {
   result_list <- lapply(X = column_names, FUN = function(column_name) {
@@ -146,6 +152,7 @@
 #' @param data_margin An integer that indicates the margin on which to apply the function. Default is 2.
 #' @param quantile_levels A named numeric vector of probabilities for which quantiles are required.
 #' @return A data frame with columns for each calculated statistic, including mean, standard deviation, and user-specified quantiles.
+#' @keyword internal
 
 .calculate_quantiles <- function(data_array, data_margin = 2, quantile_levels = c("min" = 0, "2.5%" = 0.025, "25%" = 0.25, "median" = 0.5, "75%" = 0.75, "97.5%" = 0.975, "max" = 1)) {
   quantile_results <- as.data.frame(t(apply(X = data_array, MARGIN = data_margin, FUN = function(x) {
@@ -159,6 +166,7 @@
 #' @param data_array A data array where calculations will be performed on each column.
 #' @param quantile_levels A named vector of probabilities for which quantiles are required.
 #' @return A data frame with columns for each calculated statistic, including mean, standard deviation, upper and lower bounds, and user-specified quantiles.
+#' @keyword internal
 
 .calculate_weighted_statistics <- function(data_array, data_margin = 2, quantile_levels = c("min" = 0, "2.5%" = 0.025, "25%" = 0.25, "median" = 0.5, "75%" = 0.75, "97.5%" = 0.975, "max" = 1)) {
   # Check if quantile_levels is not empty and contains values in [0, 1]
@@ -193,6 +201,7 @@
 #' @param y_max_value A string specifying the column name for the upper bound of the ribbon. Default is "97.5".
 #' @param color_palette A character vector specifying the color palette to use for the plot. Default is a set of 10 colors.
 #' @return A ggplot2 object representing the plot.
+#' @keyword internal
 
 .create_confidence_interval_plot <- function(df, graph_title = "", x_axis_title = "", y_axis_title = "", legend_name = "Type", legend_labels = NULL,
                                             y_axis_limits = c(0.15, 0.95), y_min_value = "2.5%", y_max_value = "97.5%",
@@ -237,6 +246,7 @@
 #' @param number_of_samples An integer indicating the number of bootstrap samples to generate. Default is 1.
 #' @return A matrix containing bootstrap samples with rows corresponding to individual samples and columns corresponding to observations in each sample.
 #'    The matrix has an attribute "gr" that contains the calculated size for each group to ensure proportional representation.
+#' @keyword internal
 
 .gen_samples_proportional<- function(df, factor_column = "vasdecile", sample_size = 1000, number_of_samples = 1000) {
   # Convert column to factor
@@ -278,6 +288,7 @@
 #' @param variable A numeric vector that you want to cut into intervals.
 #' @param breaks A numeric vector specifying the breakpoints for cutting the variable.
 #' @return A factor vector representing the intervals into which the variable has been cut.
+#' @keyword internal
 
 .cut_variable <- function(variable, breaks) {
   if (is.null(breaks)) {
@@ -293,6 +304,7 @@
 #' @param variant_fun A function that will be applied to the variable for factorization.
 #' @param breaks An optional numeric vector specifying the breakpoints for cutting the variable, if applicable.
 #' @return A factor or numeric vector representing the factorized variable.
+#' @keyword internal
 
 .factorize_variable <- function(df, weight_column, variant_fun, breaks = NULL){
   # Chech variable exists
@@ -317,6 +329,7 @@
 #' @description This function takes a matrix with an attribute "gr" representing group sizes and flattens it into a data frame, adding a 'gr' column to indicate the group each row belongs to.
 #' @param x A matrix containing the data to be flattened. The matrix should have an attribute "gr" that contains the size for each group.
 #' @return A data frame containing the flattened data with an additional 'gr' column indicating the group each row belongs to.
+#' @keyword internal
 
 .flatten_group_to_df <- function(x) {
   gr <- attr(x, "gr")
@@ -332,6 +345,7 @@
 #' @param include_p A logical value indicating whether to include the p-values in  the result.
 #' @return If include_p is FALSE, a named numeric vector of F-statistics for each column against the 'gr' column. 
 #'   If include_p is TRUE, a matrix with  two rows containing F-statistics and p-values, respectively.
+#' @keyword internal
 
 .f_stat_from_df <- function(df, include_p = FALSE) {
   df <- as.data.frame(df)
@@ -363,7 +377,8 @@
 #'     it computes their ratio and adds a new column to the data frame. The new columns are named in the format "F_ratio_Var1_Var2".
 #' @param df A data frame containing the utility variables for which ratios are to be computed.
 #' @param utility_columns A character vector specifying the names of the utility variables in the data frame.
-# @return A data frame with additional columns corresponding to the computed ratios.
+#' @return A data frame with additional columns corresponding to the computed ratios.
+#' @keyword internal
 
 .compute_ratios <- function(df, utility_columns) {
   colnames(df)<-c("VAS",utility_columns)
@@ -394,6 +409,7 @@
 #' @param y_min_value A numeric value specifying the minimum limit for the y-axis. Default is NULL.
 #' @param y_max_value A numeric value specifying the maximum limit for the y-axis. Default is NULL.
 #' @return A ggplot object representing the bar plot with error bars.
+#' @keyword internal
 
 .plot_F_statististics <- function(df, utility_columns, graph_title = "", x_axis_title = "", y_axis_title = "", y_min_value = NULL, y_max_value = NULL) {
   # Get data frame
@@ -462,7 +478,7 @@ severity_ribbon_plot <- function(df,
                                 y_axis_limits = c(0.15, 0.95),  
                                 y_min_value = "2.5%", 
                                 y_max_value = "97.5%",
-                                color_palette = c("#8dd3c7", "#bebada", "#80b1d3", "#fb8072", "#ffff67", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd")){
+                                color_palette = NULL){
   
   # Check df
   if (!is.data.frame(df)) {
@@ -500,6 +516,9 @@ severity_ribbon_plot <- function(df,
   # Check if weight_function is a function
   if (!is.function(weight_function)) {
     stop("weight_function must be a function.")
+  }
+  if (is.null(color_palette)){
+    color_palette <- c("#374E55FF", "#DF8F44FF", "#00A1D5FF", "#B24745FF", "#79AF97FF", "#6A6599FF", "#80796BFF", "#fccde5", "#ffff67", "#80b1d3")
   }
   # Check if integers are actually integers
   # if (!is.integer(sample_size) || (!is.integer(number_of_samples))) {

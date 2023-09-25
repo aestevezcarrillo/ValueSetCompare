@@ -23,8 +23,7 @@ severity_ribbon_plot(
   y_axis_limits = c(0.15, 0.95),
   y_min_value = "2.5\%",
   y_max_value = "97.5\%",
-  color_palette = c("#8dd3c7", "#bebada", "#80b1d3", "#fb8072", "#ffff67", "#fdb462",
-    "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd")
+  color_palette = NULL
 )
 }
 \arguments{

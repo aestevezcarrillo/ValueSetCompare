@@ -18,8 +18,8 @@ plot_density(
   y_min_value = NULL,
   y_max_value = NULL,
   legend_name = "",
-  color_palette = c("#8dd3c7", "#bebada", "#80b1d3", "#fb8072", "#ffff67", "#fdb462",
-    "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd")
+  color_palette = NULL,
+  line_types = NULL
 )
 }
 \arguments{
@@ -39,7 +39,7 @@ plot_density(
 
 \item{y_axis_title}{A character string specifying the title of the y-axis. Default is "Density".}
 
-\item{color_palette}{A character vector specifying the colors for the density lines. Default is a predefined color palette.}
+\item{color_palette}{A character vector specifying the line types for the density lines. Default is solid.}
 
 \item{xMinValue}{A numeric specifying the minimum value for the x-axis. Default is NULL.}
 

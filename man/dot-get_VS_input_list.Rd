@@ -21,7 +21,7 @@
 
 \item{value_sets_XWR}{(Optional) A character vector specifying the country value sets for EQ5D-XWR version.}
 
-\item{value_sets_others}{(Optional) A list of lists specifying the inputs for other instruments. Each list within the main list should be named and contain a data frame (`df`), a column specifying the health states (`stateColumn`), and a column specifying the utility values (`utilityColumn`).}
+\item{value_sets_others}{(Optional) A list of lists specifying the inputs for other instruments. Each list within the main list should be named and contain a data frame ("df"), a column specifying the health states ("stateColumn"), and a column specifying the utility values ("utilityColumn").}
 }
 \value{
 A list containing input specifications for each provided value set. Each element of the list is a list including three elements: "df", which is a dataframe, "stateColumn" which specifies the name of the column in the "df" dataframe that contains health states, and "utilityColumn" which is the name of the column in the "df" dataframe that contains utility values.

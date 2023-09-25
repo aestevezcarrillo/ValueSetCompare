@@ -7,6 +7,7 @@
 #' @param dim.names A vector of dimension names to identify dimension columns in the df data frame
 #' @param colnames (Optional) A character vector specifying the column names for the added utilities. 
 #' @return The df data frame with the added utility columns.
+#' @keyword internal
 
 .add_EQ5D_utilities <- function(df, value_sets, version, colnames = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad")) {
   
@@ -56,6 +57,7 @@
 #'   \item \code{utilityColumn}: A character vector with the names of the added utility columns.
 #'   \item \code{df}: A data frame containing all generated EQ states with their utilities.
 #' }
+#' @keyword internal
 
 .get_EQ5D_value_sets <- function(version, value_sets, value_sets_XW) {
     
@@ -88,6 +90,7 @@
 #' @param df A data frame containing EQ5D health states.
 #' @param stateColumn A character string specifying the name of the column in the df data frame that contains the EQ5D health states.
 #' @return A character string indicating the version of EQ5D used. Valid return values are "3L" for EQ5D-3L, "5L" for EQ5D-5L, or NULL if the version cannot be determined.
+#' @keyword internal
 
 .get_EQ5D_version <- function(df, stateColumn){
   
@@ -114,8 +117,9 @@
 #' @param value_sets_5L (Optional) A character vector specifying the country value sets for EQ5D-5L version.
 #' @param value_sets_XW (Optional) A character vector specifying the country value sets for EQ5D-XW version.
 #' @param value_sets_XWR (Optional) A character vector specifying the country value sets for EQ5D-XWR version.
-#' @param value_sets_others (Optional) A list of lists specifying the inputs for other instruments. Each list within the main list should be named and contain a data frame (`df`), a column specifying the health states (`stateColumn`), and a column specifying the utility values (`utilityColumn`).
+#' @param value_sets_others (Optional) A list of lists specifying the inputs for other instruments. Each list within the main list should be named and contain a data frame ("df"), a column specifying the health states ("stateColumn"), and a column specifying the utility values ("utilityColumn").
 #' @return A list containing input specifications for each provided value set. Each element of the list is a list including three elements: "df", which is a dataframe, "stateColumn" which specifies the name of the column in the "df" dataframe that contains health states, and "utilityColumn" which is the name of the column in the "df" dataframe that contains utility values.
+#' @keyword internal
 
 .get_VS_input_list <- function(value_sets_3L = NULL, 
                                value_sets_5L = NULL, 
@@ -176,7 +180,8 @@
 #'   - `LSS`: Level Sum Score for the baseline health state.
 #'   - `baseline_utility`: Baseline utility value for each transition.
 #'   - `mean_transition`: Mean of the transitions for each row.
-#'   
+#' @keyword internal
+  
 .calculate_mean_transition <- function(df, version, utilityColumn, stateColumn){
   
   # Calculate the dimension size based on the version
@@ -310,7 +315,7 @@ compute_utility_stats <- function(value_sets_3L = NULL,
   return (utility_stats)
 }
 
-#' @title plot_transitions
+#' @title single_transition_plots
 #' @description This function creates a scatter plot of mean one-level transitions for different EQ5D versions and specified value sets.
 #' @param value_sets_3L A character vector specifying the country value sets for the EQ5D-3L version.
 #' @param value_sets_5L A character vector specifying the country value sets for the EQ5D-5L version.
@@ -332,7 +337,7 @@ compute_utility_stats <- function(value_sets_3L = NULL,
 #' @note This function is primarily intended to work with EQ5D data and it is not be applicable to other instruments.
 #' @export
 
-plot_transitions <- function(value_sets_3L = NULL, 
+single_transition_plots <- function(value_sets_3L = NULL, 
                              value_sets_5L = NULL, 
                              value_sets_XW = NULL, 
                              value_sets_XWR = NULL, 
@@ -377,7 +382,7 @@ plot_transitions <- function(value_sets_3L = NULL,
   
 }
 
-#' @title plot_density
+#' @title density_plot
 #' @description This function creates a smoothed kernel density plot of utilities for different EQ5D versions and specified value sets.
 #' @param value_sets_3L A character vector specifying the country value sets for the EQ5D-3L version.
 #' @param value_sets_5L A character vector specifying the country value sets for the EQ5D-5L version.
@@ -393,6 +398,7 @@ plot_transitions <- function(value_sets_3L = NULL,
 #' @param yMaxValue A numeric specifying the maximum value for the y-axis. Default is NULL.
 #' @param legendName A character string specifying the name of the legend. Default is "".
 #' @param color_palette A character vector specifying the colors for the density lines. Default is a predefined color palette.
+#' @param color_palette A character vector specifying the line types for the density lines. Default is solid.
 #' @return A ggplot object visualizing the density of utilities for the specified EQ5D versions and other instruments value sets.
 #' @examples
 #' plot_density(value_sets_3L = "NL", value_sets_5L = "NL")
@@ -400,7 +406,7 @@ plot_transitions <- function(value_sets_3L = NULL,
 #' plot_density(value_sets_3L = "HU", value_sets_others = value_set_other)
 #' @export
 
-plot_density <- function(value_sets_3L = NULL, 
+density_plot <- function(value_sets_3L = NULL, 
                          value_sets_5L = NULL, 
                          value_sets_XW = NULL, 
                          value_sets_XWR = NULL, 
@@ -413,7 +419,8 @@ plot_density <- function(value_sets_3L = NULL,
                          y_min_value = NULL, 
                          y_max_value = NULL, 
                          legend_name = "", 
-                         color_palette = c("#8dd3c7", "#bebada", "#80b1d3", "#fb8072", "#ffff67", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd")){
+                         color_palette = NULL,
+                         line_types = NULL){
   
   # Get input list
   input_list <- .get_VS_input_list(value_sets_3L = value_sets_3L, 
@@ -426,6 +433,12 @@ plot_density <- function(value_sets_3L = NULL,
   if (length(input_list) > 10) {
     stop("Please reduce the number of value sets.")
   }
+  if (is.null(color_palette)){
+    color_palette <- c("#374E55FF", "#DF8F44FF", "#00A1D5FF", "#B24745FF", "#79AF97FF", "#6A6599FF", "#80796BFF", "#fccde5", "#ffff67", "#80b1d3")
+  }
+  if (is.null(line_types)){
+    line_types <- rep("solid", length(input_list))
+  }
   
   # Create long format data frame
   df_long <- do.call(rbind, lapply(seq_along(input_list), function(i){
@@ -434,16 +447,16 @@ plot_density <- function(value_sets_3L = NULL,
       utility = input_list[[i]]$df[[input_list[[i]]$utilityColumn]]
     )
   }))
-  
   # Create plot
-  density_plot <- ggplot(df_long, aes(x = utility, color = type)) +
-    geom_density() +
+  density_plot <- ggplot(df_long, aes(x = utility, color = type, linetype = type)) +
+    geom_density(size = 1) +
     labs(title = graph_title, x = x_axis_title, y = y_axis_title) +
     coord_cartesian(xlim = c(x_min_value, x_max_value), ylim = c(y_min_value, y_max_value)) + 
-    scale_color_manual(name = legend_name, breaks = unique(df_long$type),values = color_palette) + # Modify legend
+    scale_color_manual(name = legend_name, breaks = unique(df_long$type),values = color_palette) +
+    scale_linetype_manual(name = legend_name, breaks = unique(df_long$type), values = line_types[1:length(unique(df_long$type))]) +  # Added this line
     theme_bw() + 
     theme(legend.position = "bottom") 
-
+  
   return(density_plot)
-                           
+  
 }
