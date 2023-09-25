@@ -4,7 +4,6 @@
 #' @param pointval A numeric point value within the range of x.
 #' @param rng A numeric vector indicating the range of x.
 #' @return A numeric vector of calculated weights.
-#' @keywords internal
 
 .makeWeightsTriangular <- function(x, pointval, rng) {
   # Calculate ranges
@@ -30,7 +29,6 @@
 #' @param pointval A numeric point value within the range of x.
 #' @param rng A numeric vector indicating the range of x.
 #' @return A numeric vector of calculated weights.
-#' @keywords internal
 
 .makeWeightsGradient <- function(x, pointval, rng) {
   # Pre-compute common values
@@ -50,7 +48,6 @@
 #' @param pointval A numeric point value within the range of x.
 #' @param rng A numeric vector indicating the range of x.
 #' @return A numeric vector of calculated weights.
-#' @keywords internal
 
 .makeWeightsMixed <- function(x, pointval, rng) {
   # Calculate weights based on mixed approach

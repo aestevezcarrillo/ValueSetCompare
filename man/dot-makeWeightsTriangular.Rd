@@ -19,4 +19,3 @@ A numeric vector of calculated weights.
 \description{
 A function to calculate weights based on a triangular approach.
 }
-\keyword{internal}
