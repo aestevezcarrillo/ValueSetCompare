@@ -88,7 +88,7 @@
 #' @param df A data frame from which the samples are to be generated. 
 #' @param weight_column A string specifying the name of the column to use for weighting.Defaults to "VAS".
 #' @param weight_range A numeric vector indicating the range of weight_column, default is 0 to 100.
-#' @param weight_function A function used to compute weights. Defaults to `makeWeightsTriangular`.
+#' @param weight_function A function used to compute weights. Defaults to "makeWeightsTriangular".
 #' @param weight_values A numeric vector specifying the weight values of interest. Defaults to c(0, 25, 50, 75, 100).
 #' @param sample_size An integer specifying the size of each sample. Defaults to 1000.
 #' @param number_of_samples An integer specifying the number of samples to generate. Defaults to 1000.

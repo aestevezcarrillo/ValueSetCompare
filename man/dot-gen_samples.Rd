@@ -23,7 +23,7 @@
 
 \item{weight_values}{A numeric vector specifying the weight values of interest. Defaults to c(0, 25, 50, 75, 100).}
 
-\item{weight_function}{A function used to compute weights. Defaults to `makeWeightsTriangular`.}
+\item{weight_function}{A function used to compute weights. Defaults to "makeWeightsTriangular".}
 
 \item{sample_size}{An integer specifying the size of each sample. Defaults to 1000.}
 
