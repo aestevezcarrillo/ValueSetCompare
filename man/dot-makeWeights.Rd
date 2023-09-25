@@ -26,3 +26,4 @@ A numeric vector of calculated and scaled weights.
 \description{
 A function to calculate weights with specified variant function.
 }
+\keyword{internal}

@@ -15,3 +15,4 @@ A data frame containing the flattened data with an additional 'gr' column indica
 \description{
 This function takes a matrix with an attribute "gr" representing group sizes and flattens it into a data frame, adding a 'gr' column to indicate the group each row belongs to.
 }
+\keyword{internal}

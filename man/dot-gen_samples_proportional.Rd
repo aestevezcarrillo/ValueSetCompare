@@ -28,3 +28,4 @@ A matrix containing bootstrap samples with rows corresponding to individual samp
 The function takes in a dataframe and a column (factor_column) that dictates the groupings. It then 
   generates bootstrap samples ensuring that each sample is proportionally representative of the original dataset based on the given groupings.
 }
+\keyword{internal}

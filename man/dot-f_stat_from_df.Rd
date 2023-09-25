@@ -18,3 +18,4 @@ If include_p is FALSE, a named numeric vector of F-statistics for each column ag
 \description{
 The function is designed to compute F-statistic(s) using one-way ANOVA for each numeric column in the provided data frame against a reference column named 'gr'.
 }
+\keyword{internal}

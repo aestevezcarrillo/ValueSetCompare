@@ -7,7 +7,7 @@
 #' @param dim.names A vector of dimension names to identify dimension columns in the df data frame
 #' @param colnames (Optional) A character vector specifying the column names for the added utilities. 
 #' @return The df data frame with the added utility columns.
-#' @keyword internal
+#' @keywords internal
 
 .add_EQ5D_utilities <- function(df, value_sets, version, colnames = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad")) {
   
@@ -57,7 +57,7 @@
 #'   \item \code{utilityColumn}: A character vector with the names of the added utility columns.
 #'   \item \code{df}: A data frame containing all generated EQ states with their utilities.
 #' }
-#' @keyword internal
+#' @keywords internal
 
 .get_EQ5D_value_sets <- function(version, value_sets, value_sets_XW) {
     
@@ -90,7 +90,7 @@
 #' @param df A data frame containing EQ5D health states.
 #' @param stateColumn A character string specifying the name of the column in the df data frame that contains the EQ5D health states.
 #' @return A character string indicating the version of EQ5D used. Valid return values are "3L" for EQ5D-3L, "5L" for EQ5D-5L, or NULL if the version cannot be determined.
-#' @keyword internal
+#' @keywords internal
 
 .get_EQ5D_version <- function(df, stateColumn){
   
@@ -119,7 +119,7 @@
 #' @param value_sets_XWR (Optional) A character vector specifying the country value sets for EQ5D-XWR version.
 #' @param value_sets_others (Optional) A list of lists specifying the inputs for other instruments. Each list within the main list should be named and contain a data frame ("df"), a column specifying the health states ("stateColumn"), and a column specifying the utility values ("utilityColumn").
 #' @return A list containing input specifications for each provided value set. Each element of the list is a list including three elements: "df", which is a dataframe, "stateColumn" which specifies the name of the column in the "df" dataframe that contains health states, and "utilityColumn" which is the name of the column in the "df" dataframe that contains utility values.
-#' @keyword internal
+#' @keywords internal
 
 .get_VS_input_list <- function(value_sets_3L = NULL, 
                                value_sets_5L = NULL, 
@@ -180,7 +180,7 @@
 #'   - `LSS`: Level Sum Score for the baseline health state.
 #'   - `baseline_utility`: Baseline utility value for each transition.
 #'   - `mean_transition`: Mean of the transitions for each row.
-#' @keyword internal
+#' @keywords internal
   
 .calculate_mean_transition <- function(df, version, utilityColumn, stateColumn){
   

@@ -26,3 +26,4 @@ A data frame containing the following columns:
 \description{
 This function calculates the mean transitions for EQ-5D health states based on the version specified.
 }
+\keyword{internal}

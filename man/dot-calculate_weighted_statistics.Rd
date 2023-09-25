@@ -22,3 +22,4 @@ A data frame with columns for each calculated statistic, including mean, standar
 \description{
 This function calculate the mean, standard deviation, and quantiles for each column in a provided data array.
 }
+\keyword{internal}

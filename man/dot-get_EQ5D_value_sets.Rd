@@ -23,3 +23,4 @@ A list containing:
 \description{
 This function generates all EQ states based on the provided EQ5D version and adds utilities.
 }
+\keyword{internal}

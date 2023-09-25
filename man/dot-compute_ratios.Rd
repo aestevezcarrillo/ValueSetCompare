@@ -18,3 +18,4 @@ A data frame with additional columns corresponding to the computed ratios.
 The function takes in a data frame and a set of utility variables. For each pair of utility variables, 
     it computes their ratio and adds a new column to the data frame. The new columns are named in the format "F_ratio_Var1_Var2".
 }
+\keyword{internal}
