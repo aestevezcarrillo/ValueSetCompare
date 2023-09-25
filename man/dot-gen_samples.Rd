@@ -30,10 +30,9 @@
 \item{number_of_samples}{An integer specifying the number of samples to generate. Defaults to 1000.}
 }
 \value{
-An array containing the indices of the sampled rows in the original data frame. 
- The dimensions of the array are determined by the number of weight values and the number of samples.
- @keywords internal
+An array containing the indices of the sampled rows in the original data frame. The dimensions of the array are determined by the number of weight values and the number of samples.
 }
 \description{
 This function generates stratified samples from a specified dataframe.
 }
+\keyword{internal}

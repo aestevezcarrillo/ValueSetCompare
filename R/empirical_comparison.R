@@ -92,9 +92,8 @@
 #' @param weight_values A numeric vector specifying the weight values of interest. Defaults to c(0, 25, 50, 75, 100).
 #' @param sample_size An integer specifying the size of each sample. Defaults to 1000.
 #' @param number_of_samples An integer specifying the number of samples to generate. Defaults to 1000.
-#' @return An array containing the indices of the sampled rows in the original data frame. 
-#'  The dimensions of the array are determined by the number of weight values and the number of samples.
-#'  @keywords internal
+#' @return An array containing the indices of the sampled rows in the original data frame. The dimensions of the array are determined by the number of weight values and the number of samples.
+#' @keywords internal
 
 .gen_samples <- function(df, 
                          weight_column = "VAS", 
