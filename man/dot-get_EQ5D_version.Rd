@@ -17,3 +17,4 @@ A character string indicating the version of EQ5D used. Valid return values are 
 \description{
 This function determines the version of EQ5D used based on the provided stateColumn of a data frame.
 }
+\keyword{internal}

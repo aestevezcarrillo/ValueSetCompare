@@ -17,3 +17,4 @@ A factor vector representing the intervals into which the variable has been cut.
 \description{
 This function cuts a numeric variable into intervals based on the provided breaks.
 }
+\keyword{internal}

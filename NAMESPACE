@@ -2,6 +2,6 @@
 
 export(compute_F_statistics)
 export(compute_utility_stats)
-export(plot_density)
-export(plot_transitions)
+export(density_plot)
 export(severity_ribbon_plot)
+export(single_transition_plots)

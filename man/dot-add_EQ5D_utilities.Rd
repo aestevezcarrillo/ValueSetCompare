@@ -29,3 +29,4 @@ The df data frame with the added utility columns.
 \description{
 This function calculates utilities for the provided EQ5D version and value sets.
 }
+\keyword{internal}

@@ -24,3 +24,4 @@ A list of arrays, with each array  containing the values of the respective colum
 \description{
 This function extracts the specified columns from a data frame for the given samples.
 }
+\keyword{internal}

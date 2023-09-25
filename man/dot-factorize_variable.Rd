@@ -21,3 +21,4 @@ A factor or numeric vector representing the factorized variable.
 \description{
 This function factorizes a numeric variable in a data frame based on a specified variant function and optional breaks.
 }
+\keyword{internal}
