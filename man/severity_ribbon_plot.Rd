@@ -23,6 +23,10 @@ severity_ribbon_plot(
   y_axis_limits = c(0.15, 0.95),
   y_min_value = "2.5\%",
   y_max_value = "97.5\%",
+  alpha_1 = 0.15,
+  alpha_2 = 0.05,
+  linetype_1 = 1,
+  linetype_2 = 2,
   color_palette = NULL
 )
 }
@@ -61,6 +65,14 @@ severity_ribbon_plot(
 
 \item{y_max_value}{A string specifying the maximum value for the y-axis.}
 
+\item{alpha_1}{A numeric value between 0 and 1 to define the transparency of the interquartile range. Default is 0.15.}
+
+\item{alpha_2}{A numeric value between 0 and 1 to define the transparency of the confidence interval range. Default is 0.05.}
+
+\item{linetype_1}{A numeric value between 0 and 1 to define the linetype of the interquartile range. Default is 1 "solid".}
+
+\item{linetype_2}{A numeric value between 0 and 1 to define the linetype of the confidence interval range. Default 2 "dashed".}
+
 \item{color_palette}{A character vector specifying the color palette for the plot. Default is c("#8dd3c7", "#bebada", "#80b1d3", "#fb8072", "#ffff67", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd").}
 }
 \value{
@@ -70,5 +82,8 @@ A list containing two elements: 'df' which is a data frame of weighted statistic
 This function generates a ribbon plot for given utility columns, based on weighted statistics.
 }
 \examples{
+cdta$EQ5D3L <- eq5dsuite::eq5d3l(x = cdta, country = "US", dim.names = c("mobility", "selfcare", "activity", "pain", "anxiety"))
+cdta$EQ5D5L <- eq5dsuite::eq5d5l(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
+cdta$EQXW <- eq5dsuite::eqxw(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
 result <- severity_ribbon_plot(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW")
 }

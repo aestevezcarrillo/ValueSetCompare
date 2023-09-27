@@ -14,6 +14,10 @@
   y_axis_limits = c(0.15, 0.95),
   y_min_value = "2.5\%",
   y_max_value = "97.5\%",
+  alpha_1 = 0.5,
+  alpha_2 = 0.3,
+  linetype_1 = 5,
+  linetype_2 = 2,
   color_palette = c("#bebada", "#fb8072", "#8dd3c7", "#80b1d3", "#ffff67", "#fdb462",
     "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd")
 )
@@ -36,6 +40,14 @@
 \item{y_min_value}{A string specifying the column name for the lower bound of the ribbon. Default is "2.5".}
 
 \item{y_max_value}{A string specifying the column name for the upper bound of the ribbon. Default is "97.5".}
+
+\item{alpha_1}{A numeric value between 0 and 1 to define the transparency of the interquartile range. Default is 0.15.}
+
+\item{alpha_2}{A numeric value between 0 and 1 to define the transparency of the confidence interval range. Default is 0.05.}
+
+\item{linetype_1}{A numeric value between 0 and 1 to define the linetype of the interquartile range. Default is 1 "solid".}
+
+\item{linetype_2}{A numeric value between 0 and 1 to define the linetype of the confidence interval range. Default 2 "dashed".}
 
 \item{color_palette}{A character vector specifying the color palette to use for the plot. Default is a set of 10 colors.}
 }

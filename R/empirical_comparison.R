@@ -198,19 +198,34 @@
 #' @param y_axis_limits A numeric vector specifying the limits for the y-axis. Default is c(0.15, 0.95).
 #' @param y_min_value A string specifying the column name for the lower bound of the ribbon. Default is "2.5".
 #' @param y_max_value A string specifying the column name for the upper bound of the ribbon. Default is "97.5".
+#' @param alpha_1 A numeric value between 0 and 1 to define the transparency of the interquartile range. Default is 0.15.
+#' @param alpha_2 A numeric value between 0 and 1 to define the transparency of the confidence interval range. Default is 0.05.
+#' @param linetype_1 A numeric value between 0 and 1 to define the linetype of the interquartile range. Default is 1 "solid".
+#' @param linetype_2 A numeric value between 0 and 1 to define the linetype of the confidence interval range. Default 2 "dashed".
 #' @param color_palette A character vector specifying the color palette to use for the plot. Default is a set of 10 colors.
 #' @return A ggplot2 object representing the plot.
 #' @keywords internal
 
-.create_confidence_interval_plot <- function(df, graph_title = "", x_axis_title = "", y_axis_title = "", legend_name = "Type", legend_labels = NULL,
-                                            y_axis_limits = c(0.15, 0.95), y_min_value = "2.5%", y_max_value = "97.5%",
+.create_confidence_interval_plot <- function(df, 
+                                             graph_title = "", 
+                                             x_axis_title = "", 
+                                             y_axis_title = "", 
+                                             legend_name = "Type", 
+                                             legend_labels = NULL,
+                                            y_axis_limits = c(0.15, 0.95), 
+                                            y_min_value = "2.5%", 
+                                            y_max_value = "97.5%",
+                                            alpha_1 = 0.5,
+                                            alpha_2 = 0.3,
+                                            linetype_1 = 5, 
+                                            linetype_2 = 2,
                                             color_palette = c("#bebada", "#fb8072","#8dd3c7","#80b1d3", "#ffff67", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd")) {
   # Create initial plot
   ribbon_graph <- ggplot(data = df, mapping = aes(x = topval, y = MEAN, ymin = lb, ymax = ub, color = type, fill = type, group = type)) +
     theme_bw() +  
     geom_line(size = 1.2) +
-    geom_ribbon(alpha = 0.5, linetype = 0) +
-    geom_ribbon(aes(ymin = df[[y_min_value]], ymax = df[[y_max_value]]), alpha = 0.2, linetype = 0)
+    geom_ribbon(alpha = alpha_1, linetype = linetype_1) +
+    geom_ribbon(aes(ymin = df[[y_min_value]], ymax = df[[y_max_value]]), alpha = alpha_2, linetype = linetype_2)
   # Add labels, title, and color scales
   ribbon_graph <- ribbon_graph +
     labs(x = x_axis_title, y = y_axis_title, title = graph_title, color = legend_name, fill = legend_name) +
@@ -455,11 +470,19 @@
 #' @param y_axis_limits A numeric vector specifying the limits for the y-axis. Default is c(0.15, 0.95).
 #' @param y_min_value A string specifying the minimum value for the y-axis. 
 #' @param y_max_value A string specifying the maximum value for the y-axis. 
+#' @param alpha_1 A numeric value between 0 and 1 to define the transparency of the interquartile range. Default is 0.15.
+#' @param alpha_2 A numeric value between 0 and 1 to define the transparency of the confidence interval range. Default is 0.05.
+#' @param linetype_1 A numeric value between 0 and 1 to define the linetype of the interquartile range. Default is 1 "solid".
+#' @param linetype_2 A numeric value between 0 and 1 to define the linetype of the confidence interval range. Default 2 "dashed".
 #' @param color_palette A character vector specifying the color palette for the plot. Default is c("#8dd3c7", "#bebada", "#80b1d3", "#fb8072", "#ffff67", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd").
 #' @return A list containing two elements: 'df' which is a data frame of weighted statistics, and 'plot' which is the ggplot object representing the ribbon plot.
 #' @examples
+#' cdta$EQ5D3L <- eq5dsuite::eq5d3l(x = cdta, country = "US", dim.names = c("mobility", "selfcare", "activity", "pain", "anxiety"))
+#' cdta$EQ5D5L <- eq5dsuite::eq5d5l(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
+#' cdta$EQXW <- eq5dsuite::eqxw(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
 #' result <- severity_ribbon_plot(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW")
 #' @export
+
 severity_ribbon_plot <- function(df, 
                                 utility_columns, 
                                 weight_column = "VAS", 
@@ -477,6 +500,10 @@ severity_ribbon_plot <- function(df,
                                 y_axis_limits = c(0.15, 0.95),  
                                 y_min_value = "2.5%", 
                                 y_max_value = "97.5%",
+                                alpha_1 = 0.15,
+                                alpha_2 = 0.05,
+                                linetype_1 = 1, 
+                                linetype_2 = 2,
                                 color_palette = NULL){
   
   # Check df
@@ -529,12 +556,23 @@ severity_ribbon_plot <- function(df,
   boot_data <- .extract_columns(df, column_names = c(utility_columns, weight_column), sample_indices)
   # Analyze and plot
   weighted_statistics <- .calculate_weighted_statistics(boot_data, quantile_levels = probability_levels)
-  ribbon_plot <- .create_confidence_interval_plot(weighted_statistics[weighted_statistics$type != weight_column, ],
-                                                 graph_title, x_axis_title, y_axis_title, legend_name, legend_labels,
-                                                 y_axis_limits,  y_min_value, y_max_value, color_palette)
+  ribbon_plot <- .create_confidence_interval_plot(df = weighted_statistics[weighted_statistics$type != weight_column, ],
+                                                  graph_title = graph_title, 
+                                                  x_axis_title = x_axis_title, 
+                                                  y_axis_title = y_axis_title, 
+                                                  legend_name = legend_name, 
+                                                  legend_labels = legend_labels,
+                                                  y_axis_limits = y_axis_limits, 
+                                                  y_min_value = y_min_value, 
+                                                  y_max_value = y_max_value, 
+                                                  alpha_1 = alpha_1, 
+                                                  alpha_2 = alpha_2, 
+                                                  linetype_1 = linetype_1,
+                                                  linetype_2 = linetype_2,
+                                                  color_palette = color_palette)
   
   return(list(df = weighted_statistics, plot = ribbon_plot))
-  
+
 }
 
 #' @title compute_F_statistics
@@ -554,6 +592,9 @@ severity_ribbon_plot <- function(df,
 #' @param y_max_value A numeric value specifying the maximum value for the y-axis. Default is NULL.
 #' @return A list containing two elements: 'df' which is a data frame of weighted statistics, and 'plot' which is the ggplot object representing the ribbon plot.
 #' @examples
+#' cdta$EQ5D3L <- eq5dsuite::eq5d3l(x = cdta, country = "US", dim.names = c("mobility", "selfcare", "activity", "pain", "anxiety"))
+#' cdta$EQ5D5L <- eq5dsuite::eq5d5l(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
+#' cdta$EQXW <- eq5dsuite::eqxw(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
 #' result <- compute_F_statistics(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW")
 #' @export
  
