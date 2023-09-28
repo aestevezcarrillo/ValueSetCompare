@@ -27,6 +27,8 @@ severity_ribbon_plot(
   alpha_2 = 0.05,
   linetype_1 = 1,
   linetype_2 = 2,
+  elevation_threshold = 0.05,
+  slope_threshold = 0.02,
   color_palette = NULL
 )
 }
@@ -73,10 +75,14 @@ severity_ribbon_plot(
 
 \item{linetype_2}{A numeric value between 0 and 1 to define the linetype of the confidence interval range. Default 2 "dashed".}
 
+\item{elevation_threshold}{A numeric value specifying the threshold for elevation differences. Default is 0.05.}
+
+\item{slope_threshold}{A numeric value specifying the threshold for slope differences. Default is 0.02.}
+
 \item{color_palette}{A character vector specifying the color palette for the plot. Default is c("#8dd3c7", "#bebada", "#80b1d3", "#fb8072", "#ffff67", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd").}
 }
 \value{
-A list containing two elements: 'df' which is a data frame of weighted statistics, and 'plot' which is the ggplot object representing the ribbon plot.
+A list containing three elements: 'df' which is a data frame of weighted statistics, 'plot' which is the ggplot object representing the ribbon plot and 'interpretation' with the automatic interpretation of the ribbon plot.
 }
 \description{
 This function generates a ribbon plot for given utility columns, based on weighted statistics.
@@ -85,5 +91,5 @@ This function generates a ribbon plot for given utility columns, based on weight
 cdta$EQ5D3L <- eq5dsuite::eq5d3l(x = cdta, country = "US", dim.names = c("mobility", "selfcare", "activity", "pain", "anxiety"))
 cdta$EQ5D5L <- eq5dsuite::eq5d5l(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
 cdta$EQXW <- eq5dsuite::eqxw(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
-result <- severity_ribbon_plot(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW")
+result <- severity_ribbon_plot(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW"))
 }

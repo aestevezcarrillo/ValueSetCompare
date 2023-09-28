@@ -251,6 +251,181 @@
   return(ribbon_graph)
 }
 
+#' @title .merge_adjacent_intervals
+#' @description This function takes a character vector of intervals (e.g., "0-25", "25-50") and merges adjacent intervals.
+#' @param intervals A character vector of intervals to be merged.
+#' @return A character vector of merged intervals.
+#' @keywords internal
+
+.merge_adjacent_intervals <- function(intervals) {
+  if (length(intervals) <= 1) return(intervals)
+  merged_intervals <- c()
+  start <- as.numeric(strsplit(intervals[1], "-")[[1]][1])
+  end <- as.numeric(strsplit(intervals[1], "-")[[1]][2])
+  for (i in 2:length(intervals)) {
+    current_start <- as.numeric(strsplit(intervals[i], "-")[[1]][1])
+    current_end <- as.numeric(strsplit(intervals[i], "-")[[1]][2])
+    if (current_start == end) {
+      end <- current_end
+    } else {
+      merged_intervals <- c(merged_intervals, paste0(start, "-", end))
+      start <- current_start
+      end <- current_end
+    }
+  }
+  merged_intervals <- c(merged_intervals, paste0(start, "-", end))
+  return(merged_intervals)
+}
+
+#' @title .get_severity_interpretation
+#' @description This function extracts and interprets the results from a given severity ribbon plot.
+#' @param quartiles A numeric vector specifying the quartiles for interpretation. Default is c(0, 0.25, 0.5, 0.75, 1).
+#' @param elevation_threshold A numeric value specifying the threshold for elevation differences. Default is 0.05.
+#' @param slope_threshold A numeric value specifying the threshold for slope differences. Default is 0.02.
+#' @return A list containing the interpretation results for each combination of types in the ribbon plot.
+#'         Each list element contains details about crossing, elevation differences, and slope changes.
+#' @keywords internal
+
+.get_severity_interpretation <- function(ribbon_plot, 
+                                        quartiles = c(0, 0.25, 0.5, 0.75, 1),  
+                                        elevation_threshold = 0.05, 
+                                        slope_threshold = 0.02) {
+  
+  # Extract data from the ggplot object
+  plot_data <- ggplot_build(ribbon_plot)$data[[1]]
+  plot_data$type <- ribbon_plot$plot_env$ribbon_graph$data$type
+  type_data <- split(plot_data, plot_data$type)
+  # Get combinations of types
+  combinations <- combn(x = names(type_data), 2)
+  result_names <- sapply(1:ncol(combinations), function(i) {
+    return(paste0(combinations[1, i], "vs", combinations[2, i], sep = " "))
+  })
+  # Helper function to determine slope
+  calculate_slope <- function(data, x_start, x_end) {
+    (data[data$x == x_end, "y"] - data[data$x == x_start, "y"])
+  }
+  # Get results for each combination
+  results <- lapply(1:ncol(combinations), function(i) {
+    # Select comparison data
+    data1 <- type_data[[combinations[1, i]]]
+    data2 <- type_data[[combinations[2, i]]]
+    # Get quartile breaks
+    quartile_breaks <- quantile(plot_data$x, probs = quartiles)
+    range_strings <- sapply(1:(length(quartile_breaks) - 1), function(i) {
+      paste0(round(quartile_breaks[i]), "-", round(quartile_breaks[i + 1]))
+    })
+    # Initialize empty list 
+    cross_list <- elevation_list <- slope_change_list <- vector("list", length(quartile_breaks) - 1)
+    names(cross_list) <- names(elevation_list) <- names(slope_change_list) <- range_strings
+    # Loop though each interval Q1, Q2, Q3, Q4. 
+    for (q in 1:(length(quartile_breaks) - 1)) {
+      x_start <- quartile_breaks[[q]]
+      x_end <- quartile_breaks[[q + 1]]
+      data1_subset <- data1[data1$x >= x_start & data1$x <= x_end, ]
+      data2_subset <- data2[data2$x >= x_start & data2$x <= x_end, ]
+      # Cross
+      cross_list[[q]] <- length(unique(sign(data1_subset$y - data2_subset$y))) != 1
+      # Elevation
+      mean_diff <- mean(data1_subset$y) - mean(data2_subset$y)
+      elevation <- list(
+        mean_diff = mean_diff,
+        category = ifelse(abs(mean_diff) < elevation_threshold, "very close",
+                          ifelse(mean_diff > 0, "type1 is over type2", "type2 is over type1"))
+      )
+      elevation_list[[q]] <- elevation
+      # Slope 
+      slope_diff <- calculate_slope(data1_subset, x_start, x_end) - calculate_slope(data2_subset, x_start, x_end)
+      slope_change <- list(
+        slope_diff = slope_diff,
+        category = ifelse(abs(slope_diff) < slope_threshold, "similar slope",
+                          ifelse(slope_diff > 0, "type1 is steeper than type2", "type2 is steeper than type1"))
+      )
+      slope_change_list[[q]] <- slope_change
+    }
+    return(list(types = combinations[,i], 
+                cross = cross_list, 
+                elevation = elevation_list, 
+                slope_change = slope_change_list))
+  })
+  names(results) <- result_names
+  return(results)
+}
+
+#' @title .write_severity_intepretation
+#' @description This function generates the interpretation of the results obtained from a severity ribbon plot.
+#' @param intepretation_results A list containing the interpretation results for each combination of types in the ribbon plot. 
+#' A character vector containing the interpretation paragraphs for 
+#'         each combination of types in the ribbon plot.
+#' @return quartiles A numeric vector specifying the quartiles for interpretation. Default is c(0, 0.25, 0.5, 0.75, 1).
+#' @keywords internal
+
+.write_severity_intepretation <- function(intepretation_results) {
+  paragraphs <- lapply(intepretation_results, function(res) {
+    type1 <- res$types[1]
+    type2 <- res$types[2]
+    # Cross
+    quartile_names <- names(res$cross)
+    cross_intervals <- quartile_names[unlist(res$cross)]
+    cross_count <- length(cross_intervals)
+    if (cross_count == 0) {
+      cross_desc <- sprintf("The %s and %s curves did not intersect.", type1, type2)
+    } else if (cross_count == 1) {
+      cross_desc <- sprintf("The %s and %s curves intersected within the severity range of %s.", type1, type2, cross_intervals[1])
+    } else {
+      merged_cross_intervals <- .merge_adjacent_intervals(cross_intervals)
+      cross_desc <- sprintf("The %s and %s curves intersected within the severity range of %s.", type1, type2, paste(merged_cross_intervals, collapse=", "))
+    }
+    # Elevation
+    elevation_categories <- sapply(res$elevation, function(e) e$category)
+    quartile_names <- names(elevation_categories)
+    mean_difference <- round(mean(sapply(res$elevation, function(e) e$mean_diff)),2) 
+    elevation_type1_intervals <- .merge_adjacent_intervals(quartile_names[elevation_categories == "type2 is over type1"])
+    elevation_type2_intervals <- .merge_adjacent_intervals(quartile_names[elevation_categories == "type1 is over type2"])
+    elevation_close_intervals <- .merge_adjacent_intervals(quartile_names[elevation_categories == "very close"])
+    elevation_desc_parts <- list()
+    if (length(elevation_type1_intervals) > 0) {
+      elevation_desc_parts <- c(elevation_desc_parts, sprintf("For severity values between %s, %s positioned above %s.", 
+                                                              paste(elevation_type1_intervals, collapse=", "), type2, type1))
+    }
+    if (length(elevation_type2_intervals) > 0) {
+      elevation_desc_parts <- c(elevation_desc_parts, sprintf("For severity values between %s, %s positioned above %s.", 
+                                                              paste(elevation_type2_intervals, collapse=", "), type1, type2))
+    }
+    if (length(elevation_close_intervals) > 0) {
+      elevation_desc_parts <- c(elevation_desc_parts, sprintf("For severity values between %s, %s and %s closely paralleled each other.", 
+                                                              paste(elevation_close_intervals, collapse=", "), type1, type2))
+    }
+    elevation_desc_parts <- c(elevation_desc_parts, sprintf("Across the entire severity spectrum, the average difference between %s and %s was %s.", 
+                                                            type1, type2, mean_difference))
+    elevation_desc <- paste(elevation_desc_parts, collapse=" ")
+    
+    # Slope Change
+    slope_categories <- sapply(res$slope_change, function(s) s$category)
+    quartile_names <- names(slope_categories)
+    steeper_type1_intervals <- .merge_adjacent_intervals(quartile_names[slope_categories == "type1 is steeper than type2"])
+    steeper_type2_intervals <- .merge_adjacent_intervals(quartile_names[slope_categories == "type2 is steeper than type1"])
+    similar_slope_intervals <- .merge_adjacent_intervals(quartile_names[slope_categories == "similar slope"])
+    slope_desc_parts <- list()
+    if (length(steeper_type1_intervals) > 0) {
+      slope_desc_parts <- c(slope_desc_parts, sprintf("%s showed a steeper slope than %s throughout the %s severity range.", 
+                                                      type1, type2, paste(steeper_type1_intervals, collapse=", ")))
+    }
+    if (length(steeper_type2_intervals) > 0) {
+      slope_desc_parts <- c(slope_desc_parts, sprintf("%s showed a steeper slope than %s throughout the %s severity range.", 
+                                                      type2, type1, paste(steeper_type2_intervals, collapse=", ")))
+    }
+    if (length(similar_slope_intervals) > 0) {
+      slope_desc_parts <- c(slope_desc_parts, sprintf("Both %s and %s showed similar slopes throughout the %s severity range.", 
+                                                      type1, type2, paste(similar_slope_intervals, collapse=", ")))
+    }
+    slope_desc <- paste(slope_desc_parts, collapse=" ")
+    
+    # Combine descriptions
+    return(paste(c(cross_desc, elevation_desc, slope_desc), collapse = " "))
+  })
+  return(paragraphs)
+}
+
 #' @title .gen_samples_proportional
 #' @description The function takes in a dataframe and a column (factor_column) that dictates the groupings. It then 
 #'   generates bootstrap samples ensuring that each sample is proportionally representative of the original dataset based on the given groupings.
@@ -475,12 +650,14 @@
 #' @param linetype_1 A numeric value between 0 and 1 to define the linetype of the interquartile range. Default is 1 "solid".
 #' @param linetype_2 A numeric value between 0 and 1 to define the linetype of the confidence interval range. Default 2 "dashed".
 #' @param color_palette A character vector specifying the color palette for the plot. Default is c("#8dd3c7", "#bebada", "#80b1d3", "#fb8072", "#ffff67", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd").
-#' @return A list containing two elements: 'df' which is a data frame of weighted statistics, and 'plot' which is the ggplot object representing the ribbon plot.
+#' @param elevation_threshold A numeric value specifying the threshold for elevation differences. Default is 0.05.
+#' @param slope_threshold A numeric value specifying the threshold for slope differences. Default is 0.02.
+#' @return A list containing three elements: 'df' which is a data frame of weighted statistics, 'plot' which is the ggplot object representing the ribbon plot and 'interpretation' with the automatic interpretation of the ribbon plot.
 #' @examples
 #' cdta$EQ5D3L <- eq5dsuite::eq5d3l(x = cdta, country = "US", dim.names = c("mobility", "selfcare", "activity", "pain", "anxiety"))
 #' cdta$EQ5D5L <- eq5dsuite::eq5d5l(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
 #' cdta$EQXW <- eq5dsuite::eqxw(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
-#' result <- severity_ribbon_plot(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW")
+#' result <- severity_ribbon_plot(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW"))
 #' @export
 
 severity_ribbon_plot <- function(df, 
@@ -504,6 +681,8 @@ severity_ribbon_plot <- function(df,
                                 alpha_2 = 0.05,
                                 linetype_1 = 1, 
                                 linetype_2 = 2,
+                                elevation_threshold = 0.05, 
+                                slope_threshold = 0.02,
                                 color_palette = NULL){
   
   # Check df
@@ -570,8 +749,10 @@ severity_ribbon_plot <- function(df,
                                                   linetype_1 = linetype_1,
                                                   linetype_2 = linetype_2,
                                                   color_palette = color_palette)
-  
-  return(list(df = weighted_statistics, plot = ribbon_plot))
+  # Get interpretation
+  interpretation_results <- .get_severity_interpretation(ribbon_plot, elevation_threshold = elevation_threshold, slope_threshold = slope_threshold)
+  interpretation_description <- .write_severity_intepretation(interpretation_results)
+  return(list(df = weighted_statistics, plot = ribbon_plot, intepretation = interpretation_description))
 
 }
 
