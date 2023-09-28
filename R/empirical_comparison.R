@@ -292,9 +292,10 @@
                                         slope_threshold = 0.02) {
   
   # Extract data from the ggplot object
+  g <- ggplot_build(ribbon_plot)
   plot_data <- ggplot_build(ribbon_plot)$data[[1]]
-  plot_data$type <- ribbon_plot$plot_env$ribbon_graph$data$type
-  type_data <- split(plot_data, plot_data$type)
+  type_data <- split(plot_data, plot_data$group)
+  names(type_data) <- g$plot$scales$scales[[3]]$get_labels()
   # Get combinations of types
   combinations <- combn(x = names(type_data), 2)
   result_names <- sapply(1:ncol(combinations), function(i) {
@@ -342,7 +343,7 @@
       )
       slope_change_list[[q]] <- slope_change
     }
-    return(list(types = combinations[,i], 
+    return(list(types = c(combinations[1, i], combinations[2, i]), 
                 cross = cross_list, 
                 elevation = elevation_list, 
                 slope_change = slope_change_list))
