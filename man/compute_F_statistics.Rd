@@ -9,7 +9,7 @@ compute_F_statistics(
   utility_columns,
   weight_column = "VAS",
   weight_range = c(0:100),
-  sample_size = 1000,
+  sample_size = nrow(df),
   number_of_samples = 1000,
   variant_fun = .cut_variable,
   breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100),
@@ -57,5 +57,5 @@ This function computes F-statistics for specified utility columns in a data fram
 cdta$EQ5D3L <- eq5dsuite::eq5d3l(x = cdta, country = "US", dim.names = c("mobility", "selfcare", "activity", "pain", "anxiety"))
 cdta$EQ5D5L <- eq5dsuite::eq5d5l(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
 cdta$EQXW <- eq5dsuite::eqxw(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
-result <- compute_F_statistics(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW")
+result <- compute_F_statistics(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW")))
 }

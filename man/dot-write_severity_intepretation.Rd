@@ -7,12 +7,10 @@
 .write_severity_intepretation(intepretation_results)
 }
 \arguments{
-\item{intepretation_results}{A list containing the interpretation results for each combination of types in the ribbon plot. 
-A character vector containing the interpretation paragraphs for 
-        each combination of types in the ribbon plot.}
+\item{intepretation_results}{A list containing the interpretation results for each combination of types in the ribbon plot.}
 }
 \value{
-quartiles A numeric vector specifying the quartiles for interpretation. Default is c(0, 0.25, 0.5, 0.75, 1).
+A character vector containing the interpretation paragraphs for each combination of types in the ribbon plot.
 }
 \description{
 This function generates the interpretation of the results obtained from a severity ribbon plot.

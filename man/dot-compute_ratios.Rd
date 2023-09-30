@@ -2,7 +2,7 @@
 % Please edit documentation in R/empirical_comparison.R
 \name{.compute_ratios}
 \alias{.compute_ratios}
-\title{compute_ratios}
+\title{.compute_ratios}
 \usage{
 .compute_ratios(df, utility_columns)
 }

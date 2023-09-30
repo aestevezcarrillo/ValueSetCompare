@@ -8,10 +8,12 @@
   ribbon_plot,
   quartiles = c(0, 0.25, 0.5, 0.75, 1),
   elevation_threshold = 0.05,
-  slope_threshold = 0.02
+  slope_threshold = 0.07
 )
 }
 \arguments{
+\item{ribbon_plot}{A severity ribbon plot to be interpreted.}
+
 \item{quartiles}{A numeric vector specifying the quartiles for interpretation. Default is c(0, 0.25, 0.5, 0.75, 1).}
 
 \item{elevation_threshold}{A numeric value specifying the threshold for elevation differences. Default is 0.05.}

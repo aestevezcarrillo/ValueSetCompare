@@ -2,7 +2,7 @@
 % Please edit documentation in R/empirical_comparison.R
 \name{.plot_F_statististics}
 \alias{.plot_F_statististics}
-\title{Plot F-Statistics}
+\title{.plot_F_statistics}
 \usage{
 .plot_F_statististics(
   df,

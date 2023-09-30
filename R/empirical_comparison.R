@@ -279,6 +279,7 @@
 
 #' @title .get_severity_interpretation
 #' @description This function extracts and interprets the results from a given severity ribbon plot.
+#' @param ribbon_plot A severity ribbon plot to be interpreted.
 #' @param quartiles A numeric vector specifying the quartiles for interpretation. Default is c(0, 0.25, 0.5, 0.75, 1).
 #' @param elevation_threshold A numeric value specifying the threshold for elevation differences. Default is 0.05.
 #' @param slope_threshold A numeric value specifying the threshold for slope differences. Default is 0.02.
@@ -289,7 +290,7 @@
 .get_severity_interpretation <- function(ribbon_plot, 
                                         quartiles = c(0, 0.25, 0.5, 0.75, 1),  
                                         elevation_threshold = 0.05, 
-                                        slope_threshold = 0.02) {
+                                        slope_threshold = 0.07) {
   
   # Extract data from the ggplot object
   g <- ggplot_build(ribbon_plot)
@@ -299,11 +300,11 @@
   # Get combinations of types
   combinations <- combn(x = names(type_data), 2)
   result_names <- sapply(1:ncol(combinations), function(i) {
-    return(paste0(combinations[1, i], "vs", combinations[2, i], sep = " "))
+    return(paste0(combinations[1, i], " vs ", combinations[2, i], sep = ""))
   })
   # Helper function to determine slope
-  calculate_slope <- function(data, x_start, x_end) {
-    (data[data$x == x_end, "y"] - data[data$x == x_start, "y"])
+  calculate_slope <- function(data, x_start, x_end, q_start, q_end) {
+    (data[data$x == x_end, "y"] - data[data$x == x_start, "y"])/(q_end - q_start)
   }
   # Get results for each combination
   results <- lapply(1:ncol(combinations), function(i) {
@@ -330,20 +331,23 @@
       mean_diff <- mean(data1_subset$y) - mean(data2_subset$y)
       elevation <- list(
         mean_diff = mean_diff,
-        category = ifelse(abs(mean_diff) < elevation_threshold, "very close",
-                          ifelse(mean_diff > 0, "type1 is over type2", "type2 is over type1"))
+        category = ifelse(abs(mean_diff) < elevation_threshold, 3,
+                          ifelse(mean_diff > 0, 1, 2))
       )
       elevation_list[[q]] <- elevation
       # Slope 
-      slope_diff <- calculate_slope(data1_subset, x_start, x_end) - calculate_slope(data2_subset, x_start, x_end)
+      slope_diff <- calculate_slope(data1_subset, x_start, x_end, quartiles[[q]], quartiles[[q+1]]) - calculate_slope(data2_subset, x_start, x_end, quartiles[[q]], quartiles[[q+1]])
       slope_change <- list(
         slope_diff = slope_diff,
-        category = ifelse(abs(slope_diff) < slope_threshold, "similar slope",
-                          ifelse(slope_diff > 0, "type1 is steeper than type2", "type2 is steeper than type1"))
+        category = ifelse(abs(slope_diff) < slope_threshold, 3,
+                          ifelse(slope_diff > 0, 1, 2))
       )
       slope_change_list[[q]] <- slope_change
     }
+
     return(list(types = c(combinations[1, i], combinations[2, i]), 
+                elevation_threshold = elevation_threshold,
+                slope_threshold = slope_threshold,
                 cross = cross_list, 
                 elevation = elevation_list, 
                 slope_change = slope_change_list))
@@ -355,9 +359,7 @@
 #' @title .write_severity_intepretation
 #' @description This function generates the interpretation of the results obtained from a severity ribbon plot.
 #' @param intepretation_results A list containing the interpretation results for each combination of types in the ribbon plot. 
-#' A character vector containing the interpretation paragraphs for 
-#'         each combination of types in the ribbon plot.
-#' @return quartiles A numeric vector specifying the quartiles for interpretation. Default is c(0, 0.25, 0.5, 0.75, 1).
+#' @return A character vector containing the interpretation paragraphs for each combination of types in the ribbon plot.
 #' @keywords internal
 
 .write_severity_intepretation <- function(intepretation_results) {
@@ -380,9 +382,9 @@
     elevation_categories <- sapply(res$elevation, function(e) e$category)
     quartile_names <- names(elevation_categories)
     mean_difference <- round(mean(sapply(res$elevation, function(e) e$mean_diff)),2) 
-    elevation_type1_intervals <- .merge_adjacent_intervals(quartile_names[elevation_categories == "type2 is over type1"])
-    elevation_type2_intervals <- .merge_adjacent_intervals(quartile_names[elevation_categories == "type1 is over type2"])
-    elevation_close_intervals <- .merge_adjacent_intervals(quartile_names[elevation_categories == "very close"])
+    elevation_type1_intervals <- .merge_adjacent_intervals(quartile_names[elevation_categories == 2])
+    elevation_type2_intervals <- .merge_adjacent_intervals(quartile_names[elevation_categories == 1])
+    elevation_close_intervals <- .merge_adjacent_intervals(quartile_names[elevation_categories == 3])
     elevation_desc_parts <- list()
     if (length(elevation_type1_intervals) > 0) {
       elevation_desc_parts <- c(elevation_desc_parts, sprintf("For severity values between %s, %s positioned above %s.", 
@@ -393,8 +395,8 @@
                                                               paste(elevation_type2_intervals, collapse=", "), type1, type2))
     }
     if (length(elevation_close_intervals) > 0) {
-      elevation_desc_parts <- c(elevation_desc_parts, sprintf("For severity values between %s, %s and %s closely paralleled each other.", 
-                                                              paste(elevation_close_intervals, collapse=", "), type1, type2))
+      elevation_desc_parts <- c(elevation_desc_parts, sprintf("For severity values between %s, %s and %s closely paralleled each other (mean differnce below %s). ", 
+                                                              paste(elevation_close_intervals, collapse=", "), type1, type2, sprintf("%0.2f", res$elevation_threshold)))
     }
     elevation_desc_parts <- c(elevation_desc_parts, sprintf("Across the entire severity spectrum, the average difference between %s and %s was %s.", 
                                                             type1, type2, mean_difference))
@@ -403,9 +405,9 @@
     # Slope Change
     slope_categories <- sapply(res$slope_change, function(s) s$category)
     quartile_names <- names(slope_categories)
-    steeper_type1_intervals <- .merge_adjacent_intervals(quartile_names[slope_categories == "type1 is steeper than type2"])
-    steeper_type2_intervals <- .merge_adjacent_intervals(quartile_names[slope_categories == "type2 is steeper than type1"])
-    similar_slope_intervals <- .merge_adjacent_intervals(quartile_names[slope_categories == "similar slope"])
+    steeper_type1_intervals <- .merge_adjacent_intervals(quartile_names[slope_categories == 1])
+    steeper_type2_intervals <- .merge_adjacent_intervals(quartile_names[slope_categories == 2])
+    similar_slope_intervals <- .merge_adjacent_intervals(quartile_names[slope_categories == 3])
     slope_desc_parts <- list()
     if (length(steeper_type1_intervals) > 0) {
       slope_desc_parts <- c(slope_desc_parts, sprintf("%s showed a steeper slope than %s throughout the %s severity range.", 
@@ -562,7 +564,7 @@
   return(result)
 }
 
-#' @title compute_ratios
+#' @title .compute_ratios
 #' @description The function takes in a data frame and a set of utility variables. For each pair of utility variables, 
 #'     it computes their ratio and adds a new column to the data frame. The new columns are named in the format "F_ratio_Var1_Var2".
 #' @param df A data frame containing the utility variables for which ratios are to be computed.
@@ -589,7 +591,7 @@
   return(df)
 }
 
-#' @title Plot F-Statistics
+#' @title .plot_F_statistics
 #' @description This function creates a bar plot for F-statistics along with error bars for specified utility columns.
 #' @param df A data frame containing the F-statistics.
 #' @param utility_columns A character vector specifying the names of the utility columns in the data frame.
@@ -627,6 +629,65 @@
   return(plot)
 }
 
+#' @title .get_Fstatistics_interpretation
+#' @description This function extracts and interprets the results from a given F-statistics error bar plot.
+#' @param ribbon_plot A F-statistics error bar plot to be interpreted.
+#' @param errorbar_plot A numeric vector specifying the quartiles for interpretation. Default is c(0, 0.25, 0.5, 0.75, 1).
+#' @return A list containing the interpretation results for each combination of types in the F-statistic plot.
+#'         Each list element contains details about sinficance, mean, confidence interval.
+#' @keywords internal
+
+.get_Fstatistics_interpretation <- function(errorbar_plot) {
+  # Extract data from the ggplot object
+  g <- ggplot_build(errorbar_plot)
+  plot_data <- g$data[[1]]
+  plot_data$ymin <- g$data[[2]]$ymin
+  plot_data$ymax <- g$data[[2]]$ymax
+  # Extract x-axis labels
+  x_labels <- g$layout$panel_params[[1]]$x$get_labels()
+  # Function to compute interpretation for each x-axis label
+  interpretation_list <- lapply(seq_along(x_labels), function(i){
+    data_subset <- plot_data[plot_data$group == i,]
+    return(list(
+      "mean" = data_subset$y,
+      "CI_LB" = data_subset$ymin,
+      "CI_UB" = data_subset$ymax,
+      "significant" = !(1 >= data_subset$ymin & 1 <= data_subset$ymax)
+    ))
+  })
+  names(interpretation_list) <- x_labels
+  return(interpretation_list)
+}
+
+#' @title .write_Fstatistics_interpretation
+#' @description This function generates the interpretation of the results obtained from a F-statistics plot.
+#' @param intepretation_results A list containing the interpretation results for the F-statistics plot. 
+#' @return A character vector containing the interpretation paragraphs for each combination of types in the ribbon plot.
+#' @keywords internal
+
+.write_Fstatistics_interpretation <- function(interpretation_results) {
+  # Use lapply to loop through each interpretation result and generate a summary
+  summary_list <- lapply(seq_along(interpretation_results), function(i) {
+    item_name <- names(interpretation_results)[[i]]
+    vs_names <- regmatches(item_name, gregexpr("\\bEQ\\w+\\b", item_name))[[1]]
+    if (interpretation_results[[i]]$significant == FALSE){
+      paragraph <- sprintf("The results from the F-statistic comparing %s and %s indicated no statistically significant difference (F-statistic ratio: %.2f, 95%% CI %.2f–%.2f).", 
+                           vs_names[[1]], vs_names[[2]], interpretation_results[[i]]$mean, interpretation_results[[i]]$CI_LB, interpretation_results[[i]]$CI_UB)
+    } else {
+      if (interpretation_results[[i]]$mean > 1){
+        paragraph <- sprintf("The %s value set tended to be more discriminative than the %s (F-statistic ratio: %.2f, 95%% CI %.2f–%.2f).", 
+                             vs_names[[1]], vs_names[[2]], interpretation_results[[i]]$mean, interpretation_results[[i]]$CI_LB, interpretation_results[[i]]$CI_UB)
+      } else{
+        paragraph <- sprintf("The %s value set tended to be less discriminative than the %s (F-statistic ratio: %.2f, 95%% CI %.2f–%.2f).", 
+                             vs_names[[1]], vs_names[[2]], interpretation_results[[i]]$mean, interpretation_results[[i]]$CI_LB, interpretation_results[[i]]$CI_UB)
+      }
+    }
+    return(paragraph)
+  })
+  names(summary_list) <- names(interpretation_results)
+  return(summary_list)
+}
+
 #' @title severity_ribbon_plot
 #' @description This function generates a ribbon plot for given utility columns, based on weighted statistics.
 #' @param df A data frame containing the utility and weight columns.
@@ -651,6 +712,8 @@
 #' @param linetype_1 A numeric value between 0 and 1 to define the linetype of the interquartile range. Default is 1 "solid".
 #' @param linetype_2 A numeric value between 0 and 1 to define the linetype of the confidence interval range. Default 2 "dashed".
 #' @param color_palette A character vector specifying the color palette for the plot. Default is c("#8dd3c7", "#bebada", "#80b1d3", "#fb8072", "#ffff67", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd").
+#' @param interpretation_quartiles A numeric vector of values between 0 and 1 to define the quartile ranges for the figure interpretation. Default is c(0, 0.25, 0.5, 0.75, 1)
+#' @param elevation_threshold A numeric value specifying the threshold for elevation differences. Default is 0.05.
 #' @param elevation_threshold A numeric value specifying the threshold for elevation differences. Default is 0.05.
 #' @param slope_threshold A numeric value specifying the threshold for slope differences. Default is 0.02.
 #' @return A list containing three elements: 'df' which is a data frame of weighted statistics, 'plot' which is the ggplot object representing the ribbon plot and 'interpretation' with the automatic interpretation of the ribbon plot.
@@ -682,6 +745,7 @@ severity_ribbon_plot <- function(df,
                                 alpha_2 = 0.05,
                                 linetype_1 = 1, 
                                 linetype_2 = 2,
+                                interpretation_quartiles = c(0, 0.25, 0.5, 0.75, 1),
                                 elevation_threshold = 0.05, 
                                 slope_threshold = 0.02,
                                 color_palette = NULL){
@@ -751,7 +815,7 @@ severity_ribbon_plot <- function(df,
                                                   linetype_2 = linetype_2,
                                                   color_palette = color_palette)
   # Get interpretation
-  interpretation_results <- .get_severity_interpretation(ribbon_plot, elevation_threshold = elevation_threshold, slope_threshold = slope_threshold)
+  interpretation_results <- .get_severity_interpretation(ribbon_plot, quartiles = interpretation_quartiles, elevation_threshold = elevation_threshold, slope_threshold = slope_threshold)
   interpretation_description <- .write_severity_intepretation(interpretation_results)
   return(list(df = weighted_statistics, plot = ribbon_plot, intepretation = interpretation_description))
 
@@ -777,14 +841,14 @@ severity_ribbon_plot <- function(df,
 #' cdta$EQ5D3L <- eq5dsuite::eq5d3l(x = cdta, country = "US", dim.names = c("mobility", "selfcare", "activity", "pain", "anxiety"))
 #' cdta$EQ5D5L <- eq5dsuite::eq5d5l(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
 #' cdta$EQXW <- eq5dsuite::eqxw(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
-#' result <- compute_F_statistics(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW")
+#' result <- compute_F_statistics(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW")))
 #' @export
  
 compute_F_statistics <- function(df, 
                                  utility_columns, 
                                  weight_column = "VAS", 
                                  weight_range = c(0:100), 
-                                 sample_size = 1000, 
+                                 sample_size = nrow(df), 
                                  number_of_samples = 1000, 
                                  variant_fun = .cut_variable,
                                  breaks = c(0,10,20,30,40,50,60,70,80,90,100), 
@@ -830,7 +894,11 @@ compute_F_statistics <- function(df,
                                 y_min_value = y_min_value, 
                                 y_max_value = y_max_value) 
   
-  return(list(df = result, plot = plot))
+  # Get interpretation
+  interpretation_results <- .get_Fstatistics_interpretation(plot)
+  interpretation_description <- .write_Fstatistics_interpretation(interpretation_results)
+  
+  return(list(df = result, plot = plot, interpretation = interpretation_description))
 }
 
 

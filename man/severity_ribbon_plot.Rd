@@ -27,6 +27,7 @@ severity_ribbon_plot(
   alpha_2 = 0.05,
   linetype_1 = 1,
   linetype_2 = 2,
+  interpretation_quartiles = c(0, 0.25, 0.5, 0.75, 1),
   elevation_threshold = 0.05,
   slope_threshold = 0.02,
   color_palette = NULL
@@ -74,6 +75,8 @@ severity_ribbon_plot(
 \item{linetype_1}{A numeric value between 0 and 1 to define the linetype of the interquartile range. Default is 1 "solid".}
 
 \item{linetype_2}{A numeric value between 0 and 1 to define the linetype of the confidence interval range. Default 2 "dashed".}
+
+\item{interpretation_quartiles}{A numeric vector of values between 0 and 1 to define the quartile ranges for the figure interpretation. Default is c(0, 0.25, 0.5, 0.75, 1)}
 
 \item{elevation_threshold}{A numeric value specifying the threshold for elevation differences. Default is 0.05.}
 
