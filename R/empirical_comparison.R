@@ -173,7 +173,7 @@
     stop("quantile_levels should be a non-empty list containing values in the range [0, 1]")
   }
   # Calculate bootstrapped means
-  boot_means <- lapply(data_array, function(y) (apply(y, MARGIN  = 2, FUN = colMeans)))
+  boot_means <- lapply(data_array, function(y)  (apply(y, MARGIN  = 2, FUN = colMeans)))
   # Calculate weighted quantiles
   weighted_quants <- mapply(function(x, xn) {
     data_array <- .calculate_quantiles(x, quantile_levels, data_margin = 2)
@@ -568,14 +568,14 @@
 #' @description The function takes in a data frame and a set of utility variables. For each pair of utility variables, 
 #'     it computes their ratio and adds a new column to the data frame. The new columns are named in the format "F_ratio_Var1_Var2".
 #' @param df A data frame containing the utility variables for which ratios are to be computed.
+#' @param combinations A matrix variable specifying the utility_columns combinations.
 #' @param utility_columns A character vector specifying the names of the utility variables in the data frame.
 #' @return A data frame with additional columns corresponding to the computed ratios.
 #' @keywords internal
 
-.compute_ratios <- function(df, utility_columns) {
+.compute_ratios <- function(df, combinations, utility_columns) {
   colnames(df)<-c("VAS",utility_columns)
   # Generate combinations of utility variables taken 2 at a time
-  combinations <- combn(x = utility_columns , 2)
   new_cols <- lapply(1:ncol(combinations), function(i) {
     pair <- combinations[,i]
     var1 <- as.character(pair[[1]])
@@ -603,9 +603,9 @@
 #' @return A ggplot object representing the bar plot with error bars.
 #' @keywords internal
 
-.plot_F_statististics <- function(df, utility_columns, graph_title = "", x_axis_title = "", y_axis_title = "", y_min_value = NULL, y_max_value = NULL) {
+.plot_F_statististics <- function(df, utility_columns, utility_combinations = NULL, graph_title = "", x_axis_title = "", y_axis_title = "", y_min_value = NULL, y_max_value = NULL) {
   # Get data frame
-  F_ratio_df <- as.data.frame(tail(df, ncol(combn(x = utility_columns , 2))))
+  F_ratio_df <- as.data.frame(tail(df, ncol(utility_combinations)))
   F_ratio_df$type <- rownames(F_ratio_df)
   # Create ggplot
   plot <- ggplot(F_ratio_df) +
@@ -797,7 +797,9 @@ severity_ribbon_plot <- function(df,
   
   # Generate simulated data
   sample_indices <- .gen_samples(df, weight_column = weight_column, weight_range = weight_range, weight_values = weight_values, weight_function = weight_function, sample_size = sample_size, number_of_samples = number_of_samples) 
+  tmp0 <<- sample_indices
   boot_data <- .extract_columns(df, column_names = c(utility_columns, weight_column), sample_indices)
+  tmp <<- boot_data
   # Analyze and plot
   weighted_statistics <- .calculate_weighted_statistics(boot_data, quantile_levels = probability_levels)
   ribbon_plot <- .create_confidence_interval_plot(df = weighted_statistics[weighted_statistics$type != weight_column, ],
@@ -825,6 +827,7 @@ severity_ribbon_plot <- function(df,
 #' @description This function computes F-statistics for specified utility columns in a data frame. 
 #' @param df A data frame containing the utility and weight columns.
 #' @param utility_columns A character vector specifying the names of utility columns.
+#' @param combinations A matrix with two rows indicating the utility columns combinations. Default is all possible combinations of the elements of utility_columns taken 2 at a time.
 #' @param weight_column A character string specifying the name of the weight column. Default is "VAS".
 #' @param weight_range A numeric vector specifying the range of weights. Default is c(0:100).
 #' @param sample_size An integer specifying the sample size for bootstrapping. Default is 1000.
@@ -841,11 +844,14 @@ severity_ribbon_plot <- function(df,
 #' cdta$EQ5D3L <- eq5dsuite::eq5d3l(x = cdta, country = "US", dim.names = c("mobility", "selfcare", "activity", "pain", "anxiety"))
 #' cdta$EQ5D5L <- eq5dsuite::eq5d5l(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
 #' cdta$EQXW <- eq5dsuite::eqxw(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
-#' result <- compute_F_statistics(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW")))
+#' result <- compute_F_statistics(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW"))
+#' result <- compute_F_statistics(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW"), utility_combinations = matrix(c("EQ5D5L", "EQ5D3L", "EQ5D5L", "EQXW"), nrow = 2))
+#' result$plot
 #' @export
  
 compute_F_statistics <- function(df, 
                                  utility_columns, 
+                                 utility_combinations = NULL,
                                  weight_column = "VAS", 
                                  weight_range = c(0:100), 
                                  sample_size = nrow(df), 
@@ -865,6 +871,20 @@ compute_F_statistics <- function(df,
   if (length(unavailable_vars) > 0) {
     stop(paste0("The variable(s) '", paste(unavailable_vars, collapse = ", "), "' are not found in the data frame."))
   }
+  # Validate utility combinations
+  combinations <- combn(x = utility_columns , 2)
+  if (is.null(utility_combinations)){
+    utility_combinations <- combn(x = utility_columns , 2)
+  } else {
+    is_subset <- all(apply(utility_combinations, 2, function(col) {
+      any(apply(combinations, 2, function(cmb) {
+        all(cmb == col) || all(cmb == rev(col))
+      }))
+    }))
+    if (!is_subset) {
+      stop("Provided utility_combinations is not a subset of combinations from utility_columns.")
+    }
+  }
   
   # Compute factor variable
   df$gr <- .factorize_variable(df, weight_column, variant_fun, breaks = breaks)
@@ -872,7 +892,7 @@ compute_F_statistics <- function(df,
   
   # All sample
   F_stats_all <- as.data.frame(as.list(.f_stat_from_df(df[, c("gr", column_names)])))
-  F_stats_all <- .compute_ratios(F_stats_all, column_names[-1])
+  F_stats_all <- .compute_ratios(F_stats_all, utility_combinations, column_names[-1])
   rownames(F_stats_all) <- "Full sample"
   
   # By groups
@@ -880,7 +900,7 @@ compute_F_statistics <- function(df,
   boot_data_group <- .extract_columns(df, column_names = column_names, sample_indices = sample_indices_group)
   boot_flat_group <- lapply(boot_data_group, FUN = .flatten_group_to_df) 
   F_stats_groups <- as.data.frame(lapply(X = boot_flat_group, FUN = .f_stat_from_df))
-  F_stats_groups <- .compute_ratios(F_stats_groups, column_names[-1])
+  F_stats_groups <- .compute_ratios(F_stats_groups, utility_combinations, column_names[-1])
   
   # F statistics table
   result <- t(rbind(F_stats_all, t(.calculate_quantiles(t(F_stats_groups), data_margin = 1))))
@@ -888,12 +908,12 @@ compute_F_statistics <- function(df,
   # Plot F statistics
   plot <- .plot_F_statististics(df = result, 
                                 utility_columns = utility_columns, 
+                                utility_combinations = utility_combinations,
                                 graph_title = graph_title, 
                                 x_axis_title = x_axis_title, 
                                 y_axis_title = y_axis_title, 
                                 y_min_value = y_min_value, 
                                 y_max_value = y_max_value) 
-  
   # Get interpretation
   interpretation_results <- .get_Fstatistics_interpretation(plot)
   interpretation_description <- .write_Fstatistics_interpretation(interpretation_results)

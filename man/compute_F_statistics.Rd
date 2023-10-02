@@ -7,6 +7,7 @@
 compute_F_statistics(
   df,
   utility_columns,
+  utility_combinations = NULL,
   weight_column = "VAS",
   weight_range = c(0:100),
   sample_size = nrow(df),
@@ -46,6 +47,8 @@ compute_F_statistics(
 \item{y_min_value}{A numeric value specifying the minimum value for the y-axis. Default is NULL.}
 
 \item{y_max_value}{A numeric value specifying the maximum value for the y-axis. Default is NULL.}
+
+\item{combinations}{A matrix with two rows indicating the utility columns combinations. Default is all possible combinations of the elements of utility_columns taken 2 at a time.}
 }
 \value{
 A list containing two elements: 'df' which is a data frame of weighted statistics, and 'plot' which is the ggplot object representing the ribbon plot.
@@ -57,5 +60,7 @@ This function computes F-statistics for specified utility columns in a data fram
 cdta$EQ5D3L <- eq5dsuite::eq5d3l(x = cdta, country = "US", dim.names = c("mobility", "selfcare", "activity", "pain", "anxiety"))
 cdta$EQ5D5L <- eq5dsuite::eq5d5l(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
 cdta$EQXW <- eq5dsuite::eqxw(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
-result <- compute_F_statistics(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW")))
+result <- compute_F_statistics(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW"))
+result <- compute_F_statistics(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW"), utility_combinations = matrix(c("EQ5D5L", "EQ5D3L", "EQ5D5L", "EQXW"), nrow = 2))
+result$plot
 }

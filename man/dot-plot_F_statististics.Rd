@@ -7,6 +7,7 @@
 .plot_F_statististics(
   df,
   utility_columns,
+  utility_combinations = NULL,
   graph_title = "",
   x_axis_title = "",
   y_axis_title = "",

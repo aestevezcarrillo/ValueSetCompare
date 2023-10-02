@@ -4,10 +4,12 @@
 \alias{.compute_ratios}
 \title{.compute_ratios}
 \usage{
-.compute_ratios(df, utility_columns)
+.compute_ratios(df, combinations, utility_columns)
 }
 \arguments{
 \item{df}{A data frame containing the utility variables for which ratios are to be computed.}
+
+\item{combinations}{A matrix variable specifying the utility_columns combinations.}
 
 \item{utility_columns}{A character vector specifying the names of the utility variables in the data frame.}
 }
