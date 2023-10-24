@@ -677,7 +677,6 @@
   # Use lapply to loop through each interpretation result and generate a summary
   summary_list <- lapply(seq_along(interpretation_results), function(i) {
     vs_names <- interpretation_results[[i]]$vs_names
-    print(vs_names)
     if (interpretation_results[[i]]$significant == FALSE){
       paragraph <- sprintf("The results from the F-statistic comparing %s and %s indicated no statistically significant difference (F-statistic ratio: %.2f, 95%% CI %.2f–%.2f).", 
                            vs_names[[1]], vs_names[[2]], interpretation_results[[i]]$mean, interpretation_results[[i]]$CI_LB, interpretation_results[[i]]$CI_UB)
@@ -923,7 +922,6 @@ compute_F_statistics <- function(df,
   # Get interpretation
   interpretation_results <- .get_Fstatistics_interpretation(plot, utility_combinations)
   interpretation_description <- .write_Fstatistics_interpretation(interpretation_results)
-  print(interpretation_description)
   return(list(df = result, plot = plot, interpretation = interpretation_description))
   # return(list(df = result, plot = plot))
 }
