@@ -304,7 +304,7 @@
   })
   # Helper function to determine slope
   calculate_slope <- function(data, x_start, x_end, q_start, q_end) {
-    (data[data$x == x_end, "y"] - data[data$x == x_start, "y"])/(q_end - q_start)
+    abs((data[data$x == x_end, "y"] - data[data$x == x_start, "y"])/(q_end - q_start))
   }
   # Get results for each combination
   results <- lapply(1:ncol(combinations), function(i) {
@@ -607,21 +607,28 @@
   # Get data frame
   F_ratio_df <- as.data.frame(tail(df, ncol(utility_combinations)))
   F_ratio_df$type <- rownames(F_ratio_df)
+  
+  # Set the order of the 'type' column to match utility_combinations
+  combination_order <- apply(utility_combinations, 2, function(col) {
+    paste0("F_ratio\n (", col[1], " / \n", col[2], ")")
+  })
+  F_ratio_df$type <- factor(F_ratio_df$type, levels = combination_order)
+                            
   # Create ggplot
   plot <- ggplot(F_ratio_df) +
     theme_bw() + 
-    geom_bar(aes(x=type, y=MEAN),  stat = "identity", position = "dodge", fill = "#d9d9d9") +
+    geom_bar(aes(x=type, y=`Full sample`),  stat = "identity", position = "dodge", fill = "#d9d9d9") +
     geom_errorbar(aes(x= type, ymin = `2.5%`, ymax = `97.5%`),
                   width = 0.4,
                   colour = "orange",
                   alpha = 0.9,
                   size = 1.3) + 
     geom_hline(yintercept = 1, linetype = "dashed", color = "black") + 
-    geom_text(aes(x = type, y = MEAN, label = sprintf("%.2f", MEAN)), vjust = -0.5) +
+    geom_text(aes(x = type, y = `Full sample`, label = sprintf("%.2f", `Full sample`)), vjust = -0.5) +
     ggtitle(graph_title) + 
     xlab(x_axis_title) + 
     ylab(y_axis_title) 
-  # Add y-axis limits if specified
+  # Add y-axis limits if specifiedj
   if (!is.null(y_min_value) && !is.null(y_max_value)) {
     plot <- plot + ylim(y_min_value, y_max_value)
   }
@@ -637,7 +644,7 @@
 #'         Each list element contains details about sinficance, mean, confidence interval.
 #' @keywords internal
 
-.get_Fstatistics_interpretation <- function(errorbar_plot) {
+.get_Fstatistics_interpretation <- function(errorbar_plot, utility_combinations = NULL) {
   # Extract data from the ggplot object
   g <- ggplot_build(errorbar_plot)
   plot_data <- g$data[[1]]
@@ -649,6 +656,7 @@
   interpretation_list <- lapply(seq_along(x_labels), function(i){
     data_subset <- plot_data[plot_data$group == i,]
     return(list(
+      "vs_names" = utility_combinations[,i],
       "mean" = data_subset$y,
       "CI_LB" = data_subset$ymin,
       "CI_UB" = data_subset$ymax,
@@ -668,8 +676,8 @@
 .write_Fstatistics_interpretation <- function(interpretation_results) {
   # Use lapply to loop through each interpretation result and generate a summary
   summary_list <- lapply(seq_along(interpretation_results), function(i) {
-    item_name <- names(interpretation_results)[[i]]
-    vs_names <- regmatches(item_name, gregexpr("\\bEQ\\w+\\b", item_name))[[1]]
+    vs_names <- interpretation_results[[i]]$vs_names
+    print(vs_names)
     if (interpretation_results[[i]]$significant == FALSE){
       paragraph <- sprintf("The results from the F-statistic comparing %s and %s indicated no statistically significant difference (F-statistic ratio: %.2f, 95%% CI %.2f–%.2f).", 
                            vs_names[[1]], vs_names[[2]], interpretation_results[[i]]$mean, interpretation_results[[i]]$CI_LB, interpretation_results[[i]]$CI_UB)
@@ -797,9 +805,7 @@ severity_ribbon_plot <- function(df,
   
   # Generate simulated data
   sample_indices <- .gen_samples(df, weight_column = weight_column, weight_range = weight_range, weight_values = weight_values, weight_function = weight_function, sample_size = sample_size, number_of_samples = number_of_samples) 
-  tmp0 <<- sample_indices
   boot_data <- .extract_columns(df, column_names = c(utility_columns, weight_column), sample_indices)
-  tmp <<- boot_data
   # Analyze and plot
   weighted_statistics <- .calculate_weighted_statistics(boot_data, quantile_levels = probability_levels)
   ribbon_plot <- .create_confidence_interval_plot(df = weighted_statistics[weighted_statistics$type != weight_column, ],
@@ -915,10 +921,11 @@ compute_F_statistics <- function(df,
                                 y_min_value = y_min_value, 
                                 y_max_value = y_max_value) 
   # Get interpretation
-  interpretation_results <- .get_Fstatistics_interpretation(plot)
+  interpretation_results <- .get_Fstatistics_interpretation(plot, utility_combinations)
   interpretation_description <- .write_Fstatistics_interpretation(interpretation_results)
-  
+  print(interpretation_description)
   return(list(df = result, plot = plot, interpretation = interpretation_description))
+  # return(list(df = result, plot = plot))
 }
 
 
