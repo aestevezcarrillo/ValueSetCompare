@@ -54,7 +54,7 @@ This function creates a scatter plot of mean one-level transitions for different
 This function is primarily intended to work with EQ5D data and it is not be applicable to other instruments.
 }
 \examples{
-plot_transitions(value_sets_5L = "IT")
-plot_transitions(value_sets_3L = c("JP", "US"))  
-plot_transitions(value_sets_3L ="ES", value_sets_5L = "ES", value_sets_XW = "ES", value_sets_XWR = "ES")        
+single_transition_plots(value_sets_5L = "IT")
+single_transition_plots(value_sets_3L = c("JP", "US"))  
+single_transition_plots(value_sets_3L ="ES", value_sets_5L = "ES", value_sets_XW = "ES", value_sets_XWR = "ES")        
 }
