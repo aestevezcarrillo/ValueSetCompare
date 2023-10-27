@@ -480,7 +480,7 @@
 #' @param variable A numeric vector that you want to cut into intervals.
 #' @param breaks A numeric vector specifying the breakpoints for cutting the variable.
 #' @return A factor vector representing the intervals into which the variable has been cut.
-#' @keywords internal
+#' @export
 
 .cut_variable <- function(variable, breaks) {
   if (is.null(breaks)) {

@@ -4,7 +4,7 @@
 \alias{.get_Fstatistics_interpretation}
 \title{.get_Fstatistics_interpretation}
 \usage{
-.get_Fstatistics_interpretation(errorbar_plot)
+.get_Fstatistics_interpretation(errorbar_plot, utility_combinations = NULL)
 }
 \arguments{
 \item{errorbar_plot}{A numeric vector specifying the quartiles for interpretation. Default is c(0, 0.25, 0.5, 0.75, 1).}

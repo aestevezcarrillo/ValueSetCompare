@@ -7,7 +7,7 @@
 #' @param dim.names A vector of dimension names to identify dimension columns in the df data frame
 #' @param colnames (Optional) A character vector specifying the column names for the added utilities. 
 #' @return The df data frame with the added utility columns.
-#' @keywords internal
+#' @export
 
 .add_EQ5D_utilities <- function(df, value_sets, version, colnames = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad")) {
   
