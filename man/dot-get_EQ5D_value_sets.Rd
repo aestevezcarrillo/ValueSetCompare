@@ -11,7 +11,7 @@
 
 \item{value_sets}{A character vector specifying the country value sets for the given EQ5D version.}
 
-\item{value_sets_XW}{A character vector specifying the country value sets for the crosswalked EQ5D version.}
+\item{value_sets_XW}{A character vector specifying the country value sets for the crosswalk EQ5D version.}
 }
 \value{
 A list containing:

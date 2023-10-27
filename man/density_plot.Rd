@@ -58,7 +58,7 @@ A ggplot object visualizing the density of utilities for the specified EQ5D vers
 This function creates a smoothed kernel density plot of utilities for different EQ5D versions and specified value sets.
 }
 \examples{
-plot_density(value_sets_3L = "NL", value_sets_5L = "NL")
+density_plot(value_sets_3L = "NL", value_sets_5L = "NL")
 value_set_other <- list(test_instrument = list(df = data.frame(HS=c(123, 456, 789), val = c(-0.3, 0.1, 0.75)), stateColumn = "HS", utilityColumn = "val"))
-plot_density(value_sets_3L = "HU", value_sets_others = value_set_other)
+density_plot(value_sets_3L = "HU", value_sets_others = value_set_other)
 }

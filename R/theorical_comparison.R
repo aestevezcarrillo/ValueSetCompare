@@ -1,5 +1,5 @@
 
-#' @title .add_utilities
+#' @title .add_EQ5D_utilities
 #' @description This function calculates utilities for the provided EQ5D version and value sets.
 #' @param df A data frame to which the utilities will be added.
 #' @param value_sets A character vector specifying the country value sets for the given EQ5D version.
@@ -9,7 +9,7 @@
 #' @return The df data frame with the added utility columns.
 #' @export
 
-.add_EQ5D_utilities <- function(df, value_sets, version, colnames = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad")) {
+.add_EQ5D_utilities <- function(df, value_sets, version, dim.names = c("mo", "sc", "ua", "pd", "ad"), colnames = NULL) {
   
   # Validate the version
   valid_versions <- c("5L", "3L", "XW", "XWR")
@@ -51,7 +51,7 @@
 #' @description This function generates all EQ states based on the provided EQ5D version and adds utilities.
 #' @param version A character string specifying the EQ5D version.
 #' @param value_sets A character vector specifying the country value sets for the given EQ5D version. 
-#' @param value_sets_XW A character vector specifying the country value sets for the crosswalked EQ5D version.
+#' @param value_sets_XW A character vector specifying the country value sets for the crosswalk EQ5D version.
 #' @return A list containing:
 #' \itemize{
 #'   \item \code{utilityColumn}: A character vector with the names of the added utility columns.
@@ -80,9 +80,7 @@
     } else {
       value_sets_XW_colname <- NULL
     }
-    
     return(list(utilityColumn = c(value_sets_colname, value_sets_XW_colname), df = scores))
-  
 }
 
 #' @title .get_EQ5D_version
@@ -331,9 +329,9 @@ compute_utility_stats <- function(value_sets_3L = NULL,
 #' @param legend_name A character string specifying the name of the legend. Default is NULL.
 #' @return A list of ggplot objects visualizing the mean one-level transitions for the specified EQ5D versions and value sets.
 #' @examples
-#' plot_transitions(value_sets_5L = "IT")
-#' plot_transitions(value_sets_3L = c("JP", "US"))  
-#' plot_transitions(value_sets_3L ="ES", value_sets_5L = "ES", value_sets_XW = "ES", value_sets_XWR = "ES")        
+#' single_transition_plots(value_sets_5L = "IT")
+#' single_transition_plots(value_sets_3L = c("JP", "US"))  
+#' single_transition_plots(value_sets_3L ="ES", value_sets_5L = "ES", value_sets_XW = "ES", value_sets_XWR = "ES")        
 #' @note This function is primarily intended to work with EQ5D data and it is not be applicable to other instruments.
 #' @export
 
@@ -377,7 +375,6 @@ single_transition_plots <- function(value_sets_3L = NULL,
   names(plot_list) <- sapply(input_list, function(value_set) value_set$utilityColumn)
   
   # Return plot list
-  #if (length(plot_list) == 1) plot_list <- plot_list[[1]]
   return(plot_list)
   
 }
@@ -401,9 +398,9 @@ single_transition_plots <- function(value_sets_3L = NULL,
 #' @param color_palette A character vector specifying the line types for the density lines. Default is solid.
 #' @return A ggplot object visualizing the density of utilities for the specified EQ5D versions and other instruments value sets.
 #' @examples
-#' plot_density(value_sets_3L = "NL", value_sets_5L = "NL")
+#' density_plot(value_sets_3L = "NL", value_sets_5L = "NL")
 #' value_set_other <- list(test_instrument = list(df = data.frame(HS=c(123, 456, 789), val = c(-0.3, 0.1, 0.75)), stateColumn = "HS", utilityColumn = "val"))
-#' plot_density(value_sets_3L = "HU", value_sets_others = value_set_other)
+#' density_plot(value_sets_3L = "HU", value_sets_others = value_set_other)
 #' @export
 
 density_plot <- function(value_sets_3L = NULL, 

@@ -2,14 +2,14 @@
 % Please edit documentation in R/theorical_comparison.R
 \name{.add_EQ5D_utilities}
 \alias{.add_EQ5D_utilities}
-\title{.add_utilities}
+\title{.add_EQ5D_utilities}
 \usage{
 .add_EQ5D_utilities(
   df,
   value_sets,
   version,
-  colnames = NULL,
-  dim.names = c("mo", "sc", "ua", "pd", "ad")
+  dim.names = c("mo", "sc", "ua", "pd", "ad"),
+  colnames = NULL
 )
 }
 \arguments{
@@ -19,9 +19,9 @@
 
 \item{version}{A character string specifying the EQ5D version. Valid versions are "5L", "3L", "XW", and "XWR".}
 
-\item{colnames}{(Optional) A character vector specifying the column names for the added utilities.}
-
 \item{dim.names}{A vector of dimension names to identify dimension columns in the df data frame}
+
+\item{colnames}{(Optional) A character vector specifying the column names for the added utilities.}
 }
 \value{
 The df data frame with the added utility columns.
