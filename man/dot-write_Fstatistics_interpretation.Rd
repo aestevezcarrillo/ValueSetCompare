@@ -4,7 +4,7 @@
 \alias{.write_Fstatistics_interpretation}
 \title{.write_Fstatistics_interpretation}
 \usage{
-.write_Fstatistics_interpretation(interpretation_results)
+.write_Fstatistics_interpretation(errorbar_plot, utility_combinations = NULL)
 }
 \arguments{
 \item{intepretation_results}{A list containing the interpretation results for the F-statistics plot.}
@@ -15,4 +15,3 @@ A character vector containing the interpretation paragraphs for each combination
 \description{
 This function generates the interpretation of the results obtained from a F-statistics plot.
 }
-\keyword{internal}

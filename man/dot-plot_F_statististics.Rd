@@ -36,4 +36,3 @@ A ggplot object representing the bar plot with error bars.
 \description{
 This function creates a bar plot for F-statistics along with error bars for specified utility columns.
 }
-\keyword{internal}

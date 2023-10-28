@@ -445,8 +445,6 @@ density_plot_theorical <- function(value_sets_3L = NULL,
     )
   }))
   
-  tmp <<- df_long
-  
   # Create plot
   density_plot <- ggplot(df_long, aes(x = utility, color = type, linetype = type)) +
     geom_density(size = 1) +

@@ -4,7 +4,12 @@
 \alias{.write_severity_intepretation}
 \title{.write_severity_intepretation}
 \usage{
-.write_severity_intepretation(intepretation_results)
+.write_severity_intepretation(
+  ribbon_plot,
+  quartiles = c(0, 0.25, 0.5, 0.75, 1),
+  elevation_threshold = 0.05,
+  slope_threshold = 0.07
+)
 }
 \arguments{
 \item{intepretation_results}{A list containing the interpretation results for each combination of types in the ribbon plot.}
@@ -15,4 +20,3 @@ A character vector containing the interpretation paragraphs for each combination
 \description{
 This function generates the interpretation of the results obtained from a severity ribbon plot.
 }
-\keyword{internal}

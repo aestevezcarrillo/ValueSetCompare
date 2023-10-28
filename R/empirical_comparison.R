@@ -1,3 +1,4 @@
+
 #' @title density_plot_empirical
 #' @description This function creates a smoothed kernel density plot of the empirical distribution of utility values in a given data frame.
 #' @param df A data frame containing the utility and weight columns.
@@ -272,7 +273,7 @@ density_plot_empirical <- function(df,
   return(weighted_quants)
 }
 
-#' @title .create_confidence_interval_plot
+#' @title .create_severity_ribbon_plot
 #' @description This function creates a ggplot2 plot with confidence intervals and ribbons for the given data frame.
 #' @param df A data frame containing the data to be plotted. The data frame should have columns for 'MEAN', 'lb', 'ub', 'topval', and 'type'.
 #' @param graph_title A string specifying the title of the graph. Default is an empty string.
@@ -289,9 +290,9 @@ density_plot_empirical <- function(df,
 #' @param linetype_2 A numeric value between 0 and 1 to define the linetype of the confidence interval range. Default 2 "dashed".
 #' @param color_palette A character vector specifying the color palette to use for the plot. Default is a set of 10 colors.
 #' @return A ggplot2 object representing the plot.
-#' @keywords internal
+#' @export
 
-.create_confidence_interval_plot <- function(df, 
+.create_severity_ribbon_plot <- function(df, 
                                              graph_title = "", 
                                              x_axis_title = "", 
                                              y_axis_title = "", 
@@ -445,9 +446,15 @@ density_plot_empirical <- function(df,
 #' @description This function generates the interpretation of the results obtained from a severity ribbon plot.
 #' @param intepretation_results A list containing the interpretation results for each combination of types in the ribbon plot. 
 #' @return A character vector containing the interpretation paragraphs for each combination of types in the ribbon plot.
-#' @keywords internal
+#' @export
 
-.write_severity_intepretation <- function(intepretation_results) {
+.write_severity_intepretation <- function(ribbon_plot, 
+                                          quartiles = c(0, 0.25, 0.5, 0.75, 1),  
+                                          elevation_threshold = 0.05, 
+                                          slope_threshold = 0.07) {
+  # Get results
+  intepretation_results <- .get_severity_interpretation(ribbon_plot, quartiles, elevation_threshold, slope_threshold)
+  # Write results
   paragraphs <- lapply(intepretation_results, function(res) {
     type1 <- res$types[1]
     type2 <- res$types[2]
@@ -686,7 +693,7 @@ density_plot_empirical <- function(df,
 #' @param y_min_value A numeric value specifying the minimum limit for the y-axis. Default is NULL.
 #' @param y_max_value A numeric value specifying the maximum limit for the y-axis. Default is NULL.
 #' @return A ggplot object representing the bar plot with error bars.
-#' @keywords internal
+#' @export
 
 .plot_F_statististics <- function(df, utility_columns, utility_combinations = NULL, graph_title = "", x_axis_title = "", y_axis_title = "", y_min_value = NULL, y_max_value = NULL) {
   # Get data frame
@@ -756,9 +763,11 @@ density_plot_empirical <- function(df,
 #' @description This function generates the interpretation of the results obtained from a F-statistics plot.
 #' @param intepretation_results A list containing the interpretation results for the F-statistics plot. 
 #' @return A character vector containing the interpretation paragraphs for each combination of types in the ribbon plot.
-#' @keywords internal
+#' @export
 
-.write_Fstatistics_interpretation <- function(interpretation_results) {
+.write_Fstatistics_interpretation <- function(errorbar_plot, utility_combinations = NULL) {
+  # Get interpretation results
+  interpretation_results <- .get_Fstatistics_interpretation(errorbar_plot, utility_combinations)
   # Use lapply to loop through each interpretation result and generate a summary
   summary_list <- lapply(seq_along(interpretation_results), function(i) {
     vs_names <- interpretation_results[[i]]$vs_names
@@ -892,7 +901,8 @@ severity_ribbon_plot <- function(df,
   boot_data <- .extract_columns(df, column_names = c(utility_columns, weight_column), sample_indices)
   # Analyze and plot
   weighted_statistics <- .calculate_weighted_statistics(boot_data, quantile_levels = probability_levels)
-  ribbon_plot <- .create_confidence_interval_plot(df = weighted_statistics[weighted_statistics$type != weight_column, ],
+
+  ribbon_plot <- .create_severity_ribbon_plot(df = weighted_statistics[weighted_statistics$type != weight_column, ],
                                                   graph_title = graph_title, 
                                                   x_axis_title = x_axis_title, 
                                                   y_axis_title = y_axis_title, 
@@ -907,8 +917,7 @@ severity_ribbon_plot <- function(df,
                                                   linetype_2 = linetype_2,
                                                   color_palette = color_palette)
   # Get interpretation
-  interpretation_results <- .get_severity_interpretation(ribbon_plot, quartiles = interpretation_quartiles, elevation_threshold = elevation_threshold, slope_threshold = slope_threshold)
-  interpretation_description <- .write_severity_intepretation(interpretation_results)
+  interpretation_description <- .write_severity_intepretation(ribbon_plot, quartiles = interpretation_quartiles, elevation_threshold = elevation_threshold, slope_threshold = slope_threshold)
   return(list(df = weighted_statistics, plot = ribbon_plot, intepretation = interpretation_description))
 
 }
@@ -1005,8 +1014,7 @@ compute_F_statistics <- function(df,
                                 y_min_value = y_min_value, 
                                 y_max_value = y_max_value) 
   # Get interpretation
-  interpretation_results <- .get_Fstatistics_interpretation(plot, utility_combinations)
-  interpretation_description <- .write_Fstatistics_interpretation(interpretation_results)
+  interpretation_description <- .write_Fstatistics_interpretation(plot, utility_combinations)
   return(list(df = result, plot = plot, interpretation = interpretation_description))
   # return(list(df = result, plot = plot))
 }
