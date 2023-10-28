@@ -1,3 +1,88 @@
+#' @title density_plot_empirical
+#' @description This function creates a smoothed kernel density plot of the empirical distribution of utility values in a given data frame.
+#' @param df A data frame containing the utility and weight columns.
+#' @param utility_columns A character vector specifying the names of utility columns.
+#' @param graph_title A character string specifying the title of the graph. Default is an empty string.
+#' @param x_axis_title A character string specifying the title of the x-axis. Default is "Index Value".
+#' @param xMinValue A numeric specifying the minimum value for the x-axis. Default is NULL.
+#' @param xMaxValue A numeric specifying the maximum value for the x-axis. Default is NULL.
+#' @param y_axis_title A character string specifying the title of the y-axis. Default is "Density".
+#' @param yMinValue A numeric specifying the minimum value for the y-axis. Default is NULL.
+#' @param yMaxValue A numeric specifying the maximum value for the y-axis. Default is NULL.
+#' @param legendName A character string specifying the name of the legend. Default is "".
+#' @param color_palette A character vector specifying the colors for the density lines. Default is a predefined color palette.
+#' @param color_palette A character vector specifying the line types for the density lines. Default is solid.
+#' @return A ggplot object visualizing the density of utilities for the specified EQ5D versions and other instruments value sets.
+#' @examples
+#' density_plot_empirical(value_sets_3L = "NL", value_sets_5L = "NL")
+#' value_set_other <- list(test_instrument = list(df = data.frame(HS=c(123, 456, 789), val = c(-0.3, 0.1, 0.75)), stateColumn = "HS", utilityColumn = "val"))
+#' density_plot_empirical(value_sets_3L = "HU", value_sets_others = value_set_other)
+#' @export
+
+density_plot_empirical <- function(df, 
+                                   utility_columns,
+                                   graph_title = "", 
+                                   x_axis_title = "Index Value", 
+                                   x_min_value = NULL, 
+                                   x_max_value = NULL,
+                                   y_axis_title = "Density", 
+                                   y_min_value = NULL, 
+                                   y_max_value = NULL, 
+                                   legend_name = "", 
+                                   color_palette = NULL,
+                                   line_types = NULL){
+  
+  if (!is.data.frame(df)) {
+    stop("Input df must be a data frame.")
+  } else {
+    if (nrow(df) == 0 || ncol(df) == 0) {
+      stop("Input data frame should not be empty.")
+    }
+  }
+  # Check utility columns
+  if (length(utility_columns) == 0 || length(utility_columns) > 10){
+    stop("Number of utility columns must be between 1 and 10.")
+  }
+  if (!is.character(utility_columns)) {
+    stop("utility_columns and must be of character type.")
+  }
+  if (length(unique(utility_columns)) != length(utility_columns)) {
+    stop("Utility columns should not have duplicates.")
+  }
+  unavailable_vars <- setdiff(utility_columns, names(df))
+  if (length(unavailable_vars) > 0) {
+    stop(paste0("The variable(s) '", paste(unavailable_vars, collapse = ", "), "' are not found in the data frame."))
+  }
+  # Color palette and line types
+  if (is.null(color_palette)){
+    color_palette <- c("#374E55FF", "#DF8F44FF", "#00A1D5FF", "#B24745FF", "#79AF97FF", "#6A6599FF", "#80796BFF", "#fccde5", "#ffff67", "#80b1d3")
+  }
+  if (is.null(line_types)){
+    line_types <- rep("solid", length(utility_columns))
+  }
+  
+  # Create long format data frame
+  df_long <- do.call(rbind, lapply(seq_along(utility_columns), function(i){
+    data.frame(
+      type = utility_columns[[i]],
+      utility = df[[utility_columns[[i]]]]
+    )
+  }))
+  
+  # Create plot
+  density_plot <- ggplot(df_long, aes(x = utility, color = type, linetype = type)) +
+    geom_density(size = 1) +
+    labs(title = graph_title, x = x_axis_title, y = y_axis_title) +
+    coord_cartesian(xlim = c(x_min_value, x_max_value), ylim = c(y_min_value, y_max_value)) + 
+    scale_color_manual(name = legend_name, breaks = unique(df_long$type),values = color_palette) +
+    scale_linetype_manual(name = legend_name, breaks = unique(df_long$type), values = line_types[1:length(unique(df_long$type))]) +  # Added this line
+    theme_bw() + 
+    theme(legend.position = "bottom") 
+  
+  return(density_plot)
+  
+}
+
 #' @title .makeWeightsTriangular
 #' @description A function to calculate weights based on a triangular approach.
 #' @param x A numeric vector of input values.
@@ -726,8 +811,8 @@
 #' @return A list containing three elements: 'df' which is a data frame of weighted statistics, 'plot' which is the ggplot object representing the ribbon plot and 'interpretation' with the automatic interpretation of the ribbon plot.
 #' @examples
 #' cdta$EQ5D3L <- eq5dsuite::eq5d3l(x = cdta, country = "US", dim.names = c("mobility", "selfcare", "activity", "pain", "anxiety"))
-#' cdta$EQ5D5L <- eq5dsuite::eq5d5l(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
-#' cdta$EQXW <- eq5dsuite::eqxw(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
+#' cdta$EQ5D5L <- eq5dsuite::eq5d5l(x = cdta, country = "US", dim.names = c("mobility5L", "selfcare5L", "activity5L", "pain5L", "anxiety5L"))
+#' cdta$EQXW <- eq5dsuite::eqxw(x = cdta, country = "US", dim.names = c("mobility5L", "selfcare5L", "activity5L", "pain5L", "anxiety5L"))
 #' result <- severity_ribbon_plot(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW"))
 #' @export
 
@@ -847,8 +932,8 @@ severity_ribbon_plot <- function(df,
 #' @return A list containing two elements: 'df' which is a data frame of weighted statistics, and 'plot' which is the ggplot object representing the ribbon plot.
 #' @examples
 #' cdta$EQ5D3L <- eq5dsuite::eq5d3l(x = cdta, country = "US", dim.names = c("mobility", "selfcare", "activity", "pain", "anxiety"))
-#' cdta$EQ5D5L <- eq5dsuite::eq5d5l(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
-#' cdta$EQXW <- eq5dsuite::eqxw(x = cdta, country = "US", dim.names = c("mobility5l", "selfcare5l", "activity5l", "pain5l", "anxiety5l"))
+#' cdta$EQ5D5L <- eq5dsuite::eq5d5l(x = cdta, country = "US", dim.names = c("mobility5L", "selfcare5L", "activity5L", "pain5L", "anxiety5L"))
+#' cdta$EQXW <- eq5dsuite::eqxw(x = cdta, country = "US", dim.names = c("mobility5L", "selfcare5L", "activity5L", "pain5L", "anxiety5L"))
 #' result <- compute_F_statistics(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW"))
 #' result <- compute_F_statistics(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW"), utility_combinations = matrix(c("EQ5D5L", "EQ5D3L", "EQ5D5L", "EQXW"), nrow = 2))
 #' result$plot

@@ -379,7 +379,7 @@ single_transition_plots <- function(value_sets_3L = NULL,
   
 }
 
-#' @title density_plot
+#' @title density_plot_theorical
 #' @description This function creates a smoothed kernel density plot of utilities for different EQ5D versions and specified value sets.
 #' @param value_sets_3L A character vector specifying the country value sets for the EQ5D-3L version.
 #' @param value_sets_5L A character vector specifying the country value sets for the EQ5D-5L version.
@@ -398,12 +398,12 @@ single_transition_plots <- function(value_sets_3L = NULL,
 #' @param color_palette A character vector specifying the line types for the density lines. Default is solid.
 #' @return A ggplot object visualizing the density of utilities for the specified EQ5D versions and other instruments value sets.
 #' @examples
-#' density_plot(value_sets_3L = "NL", value_sets_5L = "NL")
+#' density_plot_theorical(value_sets_3L = "NL", value_sets_5L = "NL")
 #' value_set_other <- list(test_instrument = list(df = data.frame(HS=c(123, 456, 789), val = c(-0.3, 0.1, 0.75)), stateColumn = "HS", utilityColumn = "val"))
-#' density_plot(value_sets_3L = "HU", value_sets_others = value_set_other)
+#' density_plot_theorical(value_sets_3L = "HU", value_sets_others = value_set_other)
 #' @export
 
-density_plot <- function(value_sets_3L = NULL, 
+density_plot_theorical <- function(value_sets_3L = NULL, 
                          value_sets_5L = NULL, 
                          value_sets_XW = NULL, 
                          value_sets_XWR = NULL, 
@@ -444,6 +444,9 @@ density_plot <- function(value_sets_3L = NULL,
       utility = input_list[[i]]$df[[input_list[[i]]$utilityColumn]]
     )
   }))
+  
+  tmp <<- df_long
+  
   # Create plot
   density_plot <- ggplot(df_long, aes(x = utility, color = type, linetype = type)) +
     geom_density(size = 1) +
