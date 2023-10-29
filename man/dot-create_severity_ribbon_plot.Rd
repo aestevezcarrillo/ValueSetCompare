@@ -57,3 +57,4 @@ A ggplot2 object representing the plot.
 \description{
 This function creates a ggplot2 plot with confidence intervals and ribbons for the given data frame.
 }
+\keyword{internal}

@@ -18,7 +18,8 @@ compute_F_statistics(
   x_axis_title = "",
   y_axis_title = "",
   y_min_value = NULL,
-  y_max_value = NULL
+  y_max_value = NULL,
+  F_stats_groups = NULL
 )
 }
 \arguments{

@@ -290,7 +290,7 @@ density_plot_empirical <- function(df,
 #' @param linetype_2 A numeric value between 0 and 1 to define the linetype of the confidence interval range. Default 2 "dashed".
 #' @param color_palette A character vector specifying the color palette to use for the plot. Default is a set of 10 colors.
 #' @return A ggplot2 object representing the plot.
-#' @export
+#' @keywords internal
 
 .create_severity_ribbon_plot <- function(df, 
                                              graph_title = "", 
@@ -446,7 +446,7 @@ density_plot_empirical <- function(df,
 #' @description This function generates the interpretation of the results obtained from a severity ribbon plot.
 #' @param intepretation_results A list containing the interpretation results for each combination of types in the ribbon plot. 
 #' @return A character vector containing the interpretation paragraphs for each combination of types in the ribbon plot.
-#' @export
+#' @keywords internal
 
 .write_severity_intepretation <- function(ribbon_plot, 
                                           quartiles = c(0, 0.25, 0.5, 0.75, 1),  
@@ -693,7 +693,7 @@ density_plot_empirical <- function(df,
 #' @param y_min_value A numeric value specifying the minimum limit for the y-axis. Default is NULL.
 #' @param y_max_value A numeric value specifying the maximum limit for the y-axis. Default is NULL.
 #' @return A ggplot object representing the bar plot with error bars.
-#' @export
+#' @keywords internal
 
 .plot_F_statististics <- function(df, utility_columns, utility_combinations = NULL, graph_title = "", x_axis_title = "", y_axis_title = "", y_min_value = NULL, y_max_value = NULL) {
   # Get data frame
@@ -763,7 +763,7 @@ density_plot_empirical <- function(df,
 #' @description This function generates the interpretation of the results obtained from a F-statistics plot.
 #' @param intepretation_results A list containing the interpretation results for the F-statistics plot. 
 #' @return A character vector containing the interpretation paragraphs for each combination of types in the ribbon plot.
-#' @export
+#' @keywords internal
 
 .write_Fstatistics_interpretation <- function(errorbar_plot, utility_combinations = NULL) {
   # Get interpretation results
@@ -849,7 +849,8 @@ severity_ribbon_plot <- function(df,
                                 interpretation_quartiles = c(0, 0.25, 0.5, 0.75, 1),
                                 elevation_threshold = 0.05, 
                                 slope_threshold = 0.02,
-                                color_palette = NULL){
+                                color_palette = NULL,
+                                weighted_statistics = NULL){
   
   # Check df
   if (!is.data.frame(df)) {
@@ -892,16 +893,18 @@ severity_ribbon_plot <- function(df,
     color_palette <- c("#374E55FF", "#DF8F44FF", "#00A1D5FF", "#B24745FF", "#79AF97FF", "#6A6599FF", "#80796BFF", "#fccde5", "#ffff67", "#80b1d3")
   }
   # Check if integers are actually integers
-  # if (!is.integer(sample_size) || (!is.integer(number_of_samples))) {
-  #   stop("sample_size and number_of_samples must be of integer type.")
-  # }
+  if (!is.integer(sample_size) || (!is.integer(number_of_samples))) {
+    stop("sample_size and number_of_samples must be of integer type.")
+  }
   
-  # Generate simulated data
-  sample_indices <- .gen_samples(df, weight_column = weight_column, weight_range = weight_range, weight_values = weight_values, weight_function = weight_function, sample_size = sample_size, number_of_samples = number_of_samples) 
-  boot_data <- .extract_columns(df, column_names = c(utility_columns, weight_column), sample_indices)
+  # Generate simulated data (if condition default shiny apps)
+  if (is.null(weighted_statistics)){
+    sample_indices <- .gen_samples(df, weight_column = weight_column, weight_range = weight_range, weight_values = weight_values, weight_function = weight_function, sample_size = sample_size, number_of_samples = number_of_samples) 
+    boot_data <- .extract_columns(df, column_names = c(utility_columns, weight_column), sample_indices)
+    weighted_statistics <- .calculate_weighted_statistics(boot_data, quantile_levels = probability_levels)
+  }
+  
   # Analyze and plot
-  weighted_statistics <- .calculate_weighted_statistics(boot_data, quantile_levels = probability_levels)
-
   ribbon_plot <- .create_severity_ribbon_plot(df = weighted_statistics[weighted_statistics$type != weight_column, ],
                                                   graph_title = graph_title, 
                                                   x_axis_title = x_axis_title, 
@@ -961,7 +964,8 @@ compute_F_statistics <- function(df,
                                  x_axis_title = "", 
                                  y_axis_title = "", 
                                  y_min_value = NULL, 
-                                 y_max_value = NULL) {
+                                 y_max_value = NULL, 
+                                 F_stats_groups = NULL) {
   
   if (length(utility_columns) < 2 || length(utility_columns) > 10){
     stop("Number of utility columns should be between 2 amd 10.")
@@ -994,11 +998,13 @@ compute_F_statistics <- function(df,
   F_stats_all <- .compute_ratios(F_stats_all, utility_combinations, column_names[-1])
   rownames(F_stats_all) <- "Full sample"
   
-  # By groups
-  sample_indices_group <- .gen_samples_proportional(df, factor_column = "gr", sample_size = sample_size, number_of_samples = number_of_samples)
-  boot_data_group <- .extract_columns(df, column_names = column_names, sample_indices = sample_indices_group)
-  boot_flat_group <- lapply(boot_data_group, FUN = .flatten_group_to_df) 
-  F_stats_groups <- as.data.frame(lapply(X = boot_flat_group, FUN = .f_stat_from_df))
+  # By groups (if condition default shiny apps)
+  if (is.null(F_stats_groups)){
+    sample_indices_group <- .gen_samples_proportional(df, factor_column = "gr", sample_size = sample_size, number_of_samples = number_of_samples)
+    boot_data_group <- .extract_columns(df, column_names = column_names, sample_indices = sample_indices_group)
+    boot_flat_group <- lapply(boot_data_group, FUN = .flatten_group_to_df) 
+    F_stats_groups <- as.data.frame(lapply(X = boot_flat_group, FUN = .f_stat_from_df))
+  }
   F_stats_groups <- .compute_ratios(F_stats_groups, utility_combinations, column_names[-1])
   
   # F statistics table

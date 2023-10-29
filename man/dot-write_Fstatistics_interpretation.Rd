@@ -15,3 +15,4 @@ A character vector containing the interpretation paragraphs for each combination
 \description{
 This function generates the interpretation of the results obtained from a F-statistics plot.
 }
+\keyword{internal}

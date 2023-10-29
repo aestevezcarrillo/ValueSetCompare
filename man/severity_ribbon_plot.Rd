@@ -30,7 +30,8 @@ severity_ribbon_plot(
   interpretation_quartiles = c(0, 0.25, 0.5, 0.75, 1),
   elevation_threshold = 0.05,
   slope_threshold = 0.02,
-  color_palette = NULL
+  color_palette = NULL,
+  weighted_statistics = NULL
 )
 }
 \arguments{
