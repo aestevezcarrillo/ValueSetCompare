@@ -15,9 +15,10 @@
 #' @param color_palette A character vector specifying the line types for the density lines. Default is solid.
 #' @return A ggplot object visualizing the density of utilities for the specified EQ5D versions and other instruments value sets.
 #' @examples
-#' density_plot_empirical(value_sets_3L = "NL", value_sets_5L = "NL")
-#' value_set_other <- list(test_instrument = list(df = data.frame(HS=c(123, 456, 789), val = c(-0.3, 0.1, 0.75)), stateColumn = "HS", utilityColumn = "val"))
-#' density_plot_empirical(value_sets_3L = "HU", value_sets_others = value_set_other)
+#' cdta$EQ5D3L <- eq5dsuite::eq5d3l(x = cdta, country = "US", dim.names = c("mobility", "selfcare", "activity", "pain", "anxiety"))
+#' cdta$EQ5D5L <- eq5dsuite::eq5d5l(x = cdta, country = "US", dim.names = c("mobility5L", "selfcare5L", "activity5L", "pain5L", "anxiety5L"))
+#' cdta$EQXW <- eq5dsuite::eqxw(x = cdta, country = "US", dim.names = c("mobility5L", "selfcare5L", "activity5L", "pain5L", "anxiety5L"))
+#' density_plot_empirical(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW"))
 #' @export
 
 density_plot_empirical <- function(df, 
@@ -892,10 +893,7 @@ severity_ribbon_plot <- function(df,
   if (is.null(color_palette)){
     color_palette <- c("#374E55FF", "#DF8F44FF", "#00A1D5FF", "#B24745FF", "#79AF97FF", "#6A6599FF", "#80796BFF", "#fccde5", "#ffff67", "#80b1d3")
   }
-  # Check if integers are actually integers
-  if (!is.integer(sample_size) || (!is.integer(number_of_samples))) {
-    stop("sample_size and number_of_samples must be of integer type.")
-  }
+  
   
   # Generate simulated data (if condition default shiny apps)
   if (is.null(weighted_statistics)){
@@ -921,7 +919,7 @@ severity_ribbon_plot <- function(df,
                                                   color_palette = color_palette)
   # Get interpretation
   interpretation_description <- .write_severity_intepretation(ribbon_plot, quartiles = interpretation_quartiles, elevation_threshold = elevation_threshold, slope_threshold = slope_threshold)
-  return(list(df = weighted_statistics, plot = ribbon_plot, intepretation = interpretation_description))
+  return(list(df = weighted_statistics, plot = ribbon_plot, interpretation = interpretation_description))
 
 }
 

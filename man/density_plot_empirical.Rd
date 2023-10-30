@@ -49,7 +49,8 @@ A ggplot object visualizing the density of utilities for the specified EQ5D vers
 This function creates a smoothed kernel density plot of the empirical distribution of utility values in a given data frame.
 }
 \examples{
-density_plot_empirical(value_sets_3L = "NL", value_sets_5L = "NL")
-value_set_other <- list(test_instrument = list(df = data.frame(HS=c(123, 456, 789), val = c(-0.3, 0.1, 0.75)), stateColumn = "HS", utilityColumn = "val"))
-density_plot_empirical(value_sets_3L = "HU", value_sets_others = value_set_other)
+cdta$EQ5D3L <- eq5dsuite::eq5d3l(x = cdta, country = "US", dim.names = c("mobility", "selfcare", "activity", "pain", "anxiety"))
+cdta$EQ5D5L <- eq5dsuite::eq5d5l(x = cdta, country = "US", dim.names = c("mobility5L", "selfcare5L", "activity5L", "pain5L", "anxiety5L"))
+cdta$EQXW <- eq5dsuite::eqxw(x = cdta, country = "US", dim.names = c("mobility5L", "selfcare5L", "activity5L", "pain5L", "anxiety5L"))
+density_plot_empirical(df = cdta, utility_columns = c("EQ5D3L", "EQ5D5L", "EQXW"))
 }
