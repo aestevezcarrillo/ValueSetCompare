@@ -319,7 +319,7 @@ density_plot_empirical <- function(df,
     ylim(y_axis_limits[1], y_axis_limits[2]) +
     theme(legend.position = "bottom",  
           text = element_text(size = 12),  
-          axis.title = element_text(size = 14, face = "bold"), 
+          axis.title = element_text(size = 14), 
           plot.title = element_text(size = 16, face = "bold"),
           panel.grid.major = element_line(color = "grey90"),  
           panel.grid.minor = element_line(color = "grey95"))
