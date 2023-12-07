@@ -780,7 +780,7 @@ density_plot_empirical <- function(df,
       } else {
         paragraph <- sprintf("The results from the F-statistic comparing %s and %s indicated no statistically significant difference (F-statistic ratio: %.2f, 95%% CI %.2f–%.2f).
                              Although this comparison does not achieve statistical significant, it suggest a higher statistically efficiency in the %s value set compared to %s.", 
-                             vs_names[[1]], vs_names[[2]], interpretation_results[[i]]$mean, interpretation_results[[i]]$CI_LB, interpretation_results[[i]]$CI_UB, vs_names[[2]], vs_names[[3]])
+                             vs_names[[1]], vs_names[[2]], interpretation_results[[i]]$mean, interpretation_results[[i]]$CI_LB, interpretation_results[[i]]$CI_UB, vs_names[[2]], vs_names[[1]])
       }
     } else {
       if (interpretation_results[[i]]$mean > 1){
