@@ -773,8 +773,15 @@ density_plot_empirical <- function(df,
   summary_list <- lapply(seq_along(interpretation_results), function(i) {
     vs_names <- interpretation_results[[i]]$vs_names
     if (interpretation_results[[i]]$significant == FALSE){
-      paragraph <- sprintf("The results from the F-statistic comparing %s and %s indicated no statistically significant difference (F-statistic ratio: %.2f, 95%% CI %.2f–%.2f).", 
-                           vs_names[[1]], vs_names[[2]], interpretation_results[[i]]$mean, interpretation_results[[i]]$CI_LB, interpretation_results[[i]]$CI_UB)
+      if(interpretation_results[[i]]$mean > 1){
+        paragraph <- sprintf("The results from the F-statistic comparing %s and %s indicated no statistically significant difference (F-statistic ratio: %.2f, 95%% CI %.2f–%.2f).
+                             Although this comparison does not achieve statistical significance, it suggest a higher statistically efficiency in the %s value set compared to %s.", 
+                             vs_names[[1]], vs_names[[2]], interpretation_results[[i]]$mean, interpretation_results[[i]]$CI_LB, interpretation_results[[i]]$CI_UB, vs_names[[1]], vs_names[[2]])
+      } else {
+        paragraph <- sprintf("The results from the F-statistic comparing %s and %s indicated no statistically significant difference (F-statistic ratio: %.2f, 95%% CI %.2f–%.2f).
+                             Although this comparison does not achieve statistical significant, it suggest a higher statistically efficiency in the %s value set compared to %s.", 
+                             vs_names[[1]], vs_names[[2]], interpretation_results[[i]]$mean, interpretation_results[[i]]$CI_LB, interpretation_results[[i]]$CI_UB, vs_names[[2]], vs_names[[3]])
+      }
     } else {
       if (interpretation_results[[i]]$mean > 1){
         paragraph <- sprintf("The %s value set tended to be more discriminative than the %s (F-statistic ratio: %.2f, 95%% CI %.2f–%.2f).", 
